@@ -69,7 +69,7 @@ Esses programas recebem uma cópia das variáveis de ambiente quando são inicia
 1. Clique com o botão direito no botão **Iniciar**.
 2. Clique em **Sistema**.
 
-![Menu exibido ao clicar com o botão direito no botão Iniciar, com a opção Sistema destacada](001.png)
+![Menu exibido ao clicar com o botão direito no botão Iniciar, com a opção Sistema destacada](imagens/001.png)
 
 *Figura 1 — Abertura da página Sistema pelo menu do botão Iniciar.*
 
@@ -80,7 +80,7 @@ Esses programas recebem uma cópia das variáveis de ambiente quando são inicia
    Sistema operacional de 64 bits, processador baseado em x64
    ```
 
-![Página Sistema Sobre do Windows 11 com a informação de sistema operacional de 64 bits e processador x64 destacada e dados do equipamento ocultos](002-redigida.png)
+![Página Sistema Sobre do Windows 11 com a informação de sistema operacional de 64 bits e processador x64 destacada e dados do equipamento ocultos](imagens/002-redigida.png)
 
 *Figura 2 — Conferência da arquitetura em Sistema > Sobre.*
 
@@ -105,7 +105,7 @@ Durante a instalação, o Windows pode exibir uma solicitação de confirmação
    adoptium.net
    ```
 
-![Página inicial de downloads do Eclipse Adoptium com a opção Latest Releases destacada e dados pessoais do navegador ocultos](003-redigida.png)
+![Página inicial de downloads do Eclipse Adoptium com a opção Latest Releases destacada e dados pessoais do navegador ocultos](imagens/003-redigida.png)
 
 *Figura 3 — Página oficial de versões do Eclipse Temurin.*
 
@@ -125,7 +125,7 @@ Na página de downloads, selecione os seguintes filtros:
 
 Se a página apresentar mais de uma atualização da versão 21, use a atualização estável mais recente disponibilizada na página. O número completo pode variar, por exemplo `21.0.x`; o que precisa permanecer igual é a versão principal `21`.
 
-![Página de versões com JDK 21 LTS, Windows 64 bits e o botão de download do MSI destacados](5786d3a1-c1f3-49a8-bcec-caff1d1bd116-redigida.png)
+![Página de versões com JDK 21 LTS, Windows 64 bits e o botão de download do MSI destacados](imagens/5786d3a1-c1f3-49a8-bcec-caff1d1bd116-redigida.png)
 
 *Figura 4 — Seleção do JDK 21 LTS para Windows de 64 bits no formato MSI.*
 
@@ -142,7 +142,7 @@ Se a página apresentar mais de uma atualização da versão 21, use a atualiza�
 
 Algumas configurações do Microsoft Edge podem avisar que o arquivo `.msi` “pode danificar seu dispositivo”. Se o arquivo foi iniciado no domínio oficial `adoptium.net`, confira novamente o nome do pacote e clique em **Manter**. Se o endereço ou o nome do arquivo for diferente do esperado, exclua o download e retorne ao site oficial.
 
-![Painel de downloads do Microsoft Edge com o botão Manter destacado e dados pessoais do navegador ocultos](c74108e1-e356-4b22-ae3c-df466ff8029d-redigida.png)
+![Painel de downloads do Microsoft Edge com o botão Manter destacado e dados pessoais do navegador ocultos](imagens/c74108e1-e356-4b22-ae3c-df466ff8029d-redigida.png)
 
 *Figura 5 — Confirmação para manter o instalador baixado do site oficial.*
 
@@ -154,7 +154,7 @@ OpenJDK21U-jdk_x64_windows_hotspot_21.0.x_x.msi
 
 Quando o download terminar, clique no ícone de pasta do painel de downloads para abrir o local do arquivo. Dependendo da versão do navegador, também pode aparecer a opção **Mostrar na pasta**.
 
-![Painel de downloads do Microsoft Edge com o ícone para abrir a pasta do arquivo destacado e dados pessoais do navegador ocultos](d988023c-cbdc-43d6-a7fc-e29e6e90a00a-redigida.png)
+![Painel de downloads do Microsoft Edge com o ícone para abrir a pasta do arquivo destacado e dados pessoais do navegador ocultos](imagens/d988023c-cbdc-43d6-a7fc-e29e6e90a00a-redigida.png)
 
 *Figura 6 — Abertura da pasta em que o instalador foi salvo.*
 
@@ -184,7 +184,7 @@ Se as extensões estiverem ocultas:
 3. Se aparecer a janela **Controle de Conta de Usuário**, confira se o instalador se refere ao Eclipse Temurin ou à Eclipse Adoptium.
 4. Clique em **Sim** depois de confirmar que o instalador foi baixado do site oficial.
 
-![Aviso de segurança do Windows mostrando Eclipse Foundation como fornecedor, origem do arquivo oculta e o botão Executar destacado](0fc50807-6efd-4a06-9603-6410b7c1091d-redigida.png)
+![Aviso de segurança do Windows mostrando Eclipse Foundation como fornecedor, origem do arquivo oculta e o botão Executar destacado](imagens/0fc50807-6efd-4a06-9603-6410b7c1091d-redigida.png)
 
 *Figura 7 — Confirmação da execução do instalador.*
 
@@ -195,14 +195,14 @@ Se a janela solicitar credenciais administrativas e você não as possuir, cliqu
 1. Aguarde a abertura do assistente de instalação.
 2. Na tela inicial, clique em **Next**.
 
-![Tela inicial do assistente do Eclipse Temurin JDK com o botão Next destacado](3b90d0c7-5f42-4587-8f01-50263f4d8b7a.png)
+![Tela inicial do assistente do Eclipse Temurin JDK com o botão Next destacado](imagens/3b90d0c7-5f42-4587-8f01-50263f4d8b7a.png)
 
 *Figura 8 — Tela inicial do assistente de instalação.*
 
 3. Na tela do contrato, marque **I accept the terms in the License Agreement**.
 4. Clique em **Next**.
 
-![Contrato de licença do Eclipse Temurin com a caixa de aceite e o botão Next destacados](0cc6fe3c-999a-4eb6-a31a-65a6f196b59e.png)
+![Contrato de licença do Eclipse Temurin com a caixa de aceite e o botão Next destacados](imagens/0cc6fe3c-999a-4eb6-a31a-65a6f196b59e.png)
 
 *Figura 9 — Aceite do contrato de licença para prosseguir.*
 
@@ -224,7 +224,7 @@ O instalador poderá mostrar uma tela chamada **Custom Setup**. Nela aparecem o 
 5. Para desativar um recurso nessa tela, clique no ícone ao lado do nome do recurso e escolha a opção equivalente a **Entire feature will be unavailable**. O ícone normalmente passa a mostrar um `X` vermelho.
 6. Não desative o recurso principal de instalação do JDK.
 
-![Tela Custom Setup do instalador mostrando os recursos opcionais e a pasta de instalação](4771890d-be73-4b66-aaed-d05ae035953a.png)
+![Tela Custom Setup do instalador mostrando os recursos opcionais e a pasta de instalação](imagens/4771890d-be73-4b66-aaed-d05ae035953a.png)
 
 *Figura 10 — Recursos opcionais e diretório de instalação do JDK.*
 
@@ -258,7 +258,7 @@ O valor de `JAVA_HOME` precisa apontar para a pasta principal do JDK. Ele não d
 
 4. Pressione **Enter**.
 
-![Explorador de Arquivos aberto em Arquivos de Programas Eclipse Adoptium e exibindo a pasta do JDK 21](de543a9e-f1c6-41ed-aa0a-9cd3f616fff2.png)
+![Explorador de Arquivos aberto em Arquivos de Programas Eclipse Adoptium e exibindo a pasta do JDK 21](imagens/de543a9e-f1c6-41ed-aa0a-9cd3f616fff2.png)
 
 *Figura 11 — Pasta criada pela instalação do Eclipse Temurin JDK 21.*
 
@@ -284,7 +284,7 @@ Se existirem várias pastas, selecione a atualização mais recente da versão p
    bin
    ```
 
-![Pasta principal do JDK 21 aberta no Explorador de Arquivos com a subpasta bin destacada](4e562f21-d407-4c7d-aca6-90eb5c531444.png)
+![Pasta principal do JDK 21 aberta no Explorador de Arquivos com a subpasta bin destacada](imagens/4e562f21-d407-4c7d-aca6-90eb5c531444.png)
 
 *Figura 12 — Localização da subpasta `bin` dentro da pasta principal do JDK.*
 
@@ -296,7 +296,7 @@ Se existirem várias pastas, selecione a atualização mais recente da versão p
    javac.exe
    ```
 
-![Subpasta bin do JDK mostrando os executáveis java exe e javac exe destacados](4cd5afa4-ed39-4dc9-8d41-1e91d4903f44.png)
+![Subpasta bin do JDK mostrando os executáveis java exe e javac exe destacados](imagens/4cd5afa4-ed39-4dc9-8d41-1e91d4903f44.png)
 
 *Figura 13 — Confirmação da presença de `java.exe` e `javac.exe`.*
 
@@ -311,7 +311,7 @@ Se `java.exe` existir, mas `javac.exe` não existir, provavelmente foi instalado
 3. Pressione `Ctrl + C` para copiá-lo.
 4. Cole temporariamente no Bloco de Notas, se quiser conferir antes de continuar.
 
-![Barra de endereços do Explorador de Arquivos com o caminho completo da pasta principal do JDK selecionado](7e5c8b8b-7e1d-48e9-a3e0-695ad3d65e78.png)
+![Barra de endereços do Explorador de Arquivos com o caminho completo da pasta principal do JDK selecionado](imagens/7e5c8b8b-7e1d-48e9-a3e0-695ad3d65e78.png)
 
 *Figura 14 — Seleção do caminho da pasta principal do JDK para cópia.*
 
@@ -352,14 +352,14 @@ Não inclua `\bin` no `JAVA_HOME`. Não coloque aspas no valor, mesmo que o cami
 
 3. Nos resultados, clique em **Editar as variáveis de ambiente do sistema**.
 
-![Pesquisa do Windows exibindo a opção Editar as variáveis de ambiente do sistema](c95f8eda-2faa-4d71-a67a-6b9b5e1aedd3.png)
+![Pesquisa do Windows exibindo a opção Editar as variáveis de ambiente do sistema](imagens/c95f8eda-2faa-4d71-a67a-6b9b5e1aedd3.png)
 
 *Figura 15 — Localização da opção de edição das variáveis de ambiente.*
 
 4. A janela **Propriedades do Sistema** deverá abrir na guia **Avançado**.
 5. Na parte inferior da janela, clique em **Variáveis de Ambiente...**.
 
-![Janela Propriedades do Sistema na guia Avançado com o botão Variáveis de Ambiente destacado](067c1e07-8f74-47d6-816a-13040ccc28e8.png)
+![Janela Propriedades do Sistema na guia Avançado com o botão Variáveis de Ambiente destacado](imagens/067c1e07-8f74-47d6-816a-13040ccc28e8.png)
 
 *Figura 16 — Abertura da janela Variáveis de Ambiente.*
 
@@ -383,7 +383,7 @@ A janela **Variáveis de Ambiente** é dividida em duas áreas:
 1. **Variáveis de usuário para nome-do-usuário**: afetam apenas a conta atual do Windows.
 2. **Variáveis do sistema**: afetam todas as contas do computador e normalmente exigem permissão administrativa.
 
-![Janela Variáveis de Ambiente com a área de variáveis do usuário, dados pessoais ocultos e o botão Novo destacados](bf5c7f1f-376c-4aba-88e3-c7b16c81aaef-redigida.png)
+![Janela Variáveis de Ambiente com a área de variáveis do usuário, dados pessoais ocultos e o botão Novo destacados](imagens/bf5c7f1f-376c-4aba-88e3-c7b16c81aaef-redigida.png)
 
 *Figura 17 — Área das variáveis do usuário, utilizada neste procedimento.*
 
@@ -425,7 +425,7 @@ O Windows não diferencia maiúsculas de minúsculas nos nomes das variáveis, m
    - não contém o texto literal `x.x` usado apenas nos exemplos deste guia.
 5. Clique em **OK**.
 
-![Janela Nova Variável de Usuário preenchida com JAVA HOME e o caminho da pasta principal do JDK](43036f42-9740-41a6-a385-56d7cc54b076.png)
+![Janela Nova Variável de Usuário preenchida com JAVA HOME e o caminho da pasta principal do JDK](imagens/43036f42-9740-41a6-a385-56d7cc54b076.png)
 
 *Figura 18 — Criação da variável `JAVA_HOME` com o caminho da pasta principal do JDK.*
 
@@ -448,7 +448,7 @@ Se a edição estiver bloqueada ou já existir uma configuração diferente, nã
 2. Selecione `Path`.
 3. Clique em **Editar...**.
 
-![Janela Variáveis de Ambiente mostrando JAVA HOME criada, dados pessoais ocultos e a variável Path do usuário destacada](7ce900ed-3416-435e-b319-3e01e2a1c0ee-redigida.png)
+![Janela Variáveis de Ambiente mostrando JAVA HOME criada, dados pessoais ocultos e a variável Path do usuário destacada](imagens/7ce900ed-3416-435e-b319-3e01e2a1c0ee-redigida.png)
 
 *Figura 19 — Seleção da variável `Path` do usuário.*
 
@@ -468,7 +468,7 @@ Não altere uma variável com nome parecido, como `PATHEXT`. Ela tem outra final
 
 Depois de abrir a variável `Path`, cada caminho configurado aparece em uma linha separada. Para criar uma entrada, clique em **Novo**.
 
-![Janela de edição do Path do usuário com o botão Novo destacado](2305a28f-43da-4785-8767-48196ba14245.png)
+![Janela de edição do Path do usuário com o botão Novo destacado](imagens/2305a28f-43da-4785-8767-48196ba14245.png)
 
 *Figura 20 — Inclusão de uma nova linha no `Path` do usuário.*
 
@@ -499,7 +499,7 @@ Considere as seguintes situações:
    %JAVA_HOME%\bin
    ```
 
-![Janela de edição do Path contendo a entrada percentual JAVA HOME percentual barra bin](5def9c9f-cebc-4a3c-9566-ba911408ada5.png)
+![Janela de edição do Path contendo a entrada percentual JAVA HOME percentual barra bin](imagens/5def9c9f-cebc-4a3c-9566-ba911408ada5.png)
 
 *Figura 21 — Entrada `%JAVA_HOME%\bin` adicionada ao `Path` do usuário.*
 
@@ -554,7 +554,7 @@ Os testes deste guia devem ser realizados em uma janela aberta **depois** da con
 
 4. Clique em **Prompt de Comando**.
 
-![Pesquisa do Windows por cmd mostrando o aplicativo Prompt de Comando](acc717af-d5a5-42b1-a4d9-51e240a053d8.png)
+![Pesquisa do Windows por cmd mostrando o aplicativo Prompt de Comando](imagens/acc717af-d5a5-42b1-a4d9-51e240a053d8.png)
 
 *Figura 22 — Abertura do Prompt de Comando pela pesquisa do Windows.*
 
@@ -733,7 +733,7 @@ Execute:
 
 O resultado também deverá indicar `javac 21.0.x`.
 
-![Prompt de Comando mostrando os resultados corretos de JAVA HOME, existência dos executáveis, versões 21 e localização de java e javac com o nome do usuário oculto](d4def3d1-efe3-4b47-ae47-4de744e034ff-redigida.png)
+![Prompt de Comando mostrando os resultados corretos de JAVA HOME, existência dos executáveis, versões 21 e localização de java e javac com o nome do usuário oculto](imagens/d4def3d1-efe3-4b47-ae47-4de744e034ff-redigida.png)
 
 *Figura 23 — Validação completa da instalação, de `JAVA_HOME`, do `Path`, de `java` e de `javac`.*
 
@@ -879,6 +879,6 @@ Tire uma captura de tela que mostre os comandos e os resultados. Antes de enviar
 
 ## Fontes oficiais consultadas
 
-- Eclipse Adoptium. [Windows MSI installer packages](https://adoptium.net/installation/windows/).
-- Eclipse Adoptium. [Download do Eclipse Temurin JDK](https://adoptium.net/temurin/releases/).
-- Microsoft Learn. [Comando set e variáveis de ambiente no Windows](https://learn.microsoft.com/windows-server/administration/windows-commands/set_1).
+- Eclipse Adoptium. [Windows MSI installer packages](imagens/https://adoptium.net/installation/windows/).
+- Eclipse Adoptium. [Download do Eclipse Temurin JDK](imagens/https://adoptium.net/temurin/releases/).
+- Microsoft Learn. [Comando set e variáveis de ambiente no Windows](imagens/https://learn.microsoft.com/windows-server/administration/windows-commands/set_1).
