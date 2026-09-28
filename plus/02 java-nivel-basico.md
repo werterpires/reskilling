@@ -1,488 +1,632 @@
 # Java - Nível Básico
 
-# Módulo 1 — Herança e polimorfismo
+# Módulo 1 — Fundamentos do modelo de objetos
 
-A herança é um dos pilares da orientação a objetos e permite que uma classe herde propriedades e comportamentos de outra, criando uma hierarquia natural entre tipos. Este módulo explora como construir essas hierarquias, como especializar o comportamento através da sobrescrita de métodos, e como usar polimorfismo para escrever código flexível e reutilizável. Esses conceitos constituem a base para qualquer código Java bem estruturado, desde aplicações simples até frameworks corporativos complexos.
+Depois de aprender a criar classes e objetos, é preciso entender algumas regras mais profundas que todos esses objetos compartilham dentro da linguagem. Este módulo consolida o modelo de objetos do Java mostrando comportamentos que vêm da classe `Object`, as diferentes noções de igualdade, a relação entre `equals` e `hashCode`, a diferença entre membros pertencentes a uma instância e membros pertencentes à classe, e as restrições introduzidas por `final`.
 
-## Herança
+Esses assuntos aparecem juntos porque deixam de tratar apenas de "como criar um objeto" e passam a explicar como objetos se comportam dentro do ecossistema Java. Ao final do módulo, o leitor será capaz de distinguir identidade de igualdade lógica, compreender por que objetos usados em determinadas estruturas precisam obedecer ao contrato de `hashCode`, decidir quando um dado ou comportamento deve ser `static`, e usar `final` e as regras de inicialização de forma consciente. Isso prepara a base para recursos mais avançados de orientação a objetos nos níveis seguintes.
 
-Este capítulo apresenta o mecanismo mais fundamental de especialização e reutilização de código em Java: a possibilidade de uma classe herdar, de outra já existente, campos e métodos que não precisa reimplementar. Compreender herança significa entender não apenas a sintaxe (`extends`) e os papéis de superclasse e subclasse, mas também o conceito de "relação é um" que governa quando herança é apropriada — e, igualmente importante, quando não é. Este é o ponto de partida para polimorfismo, que virá nos capítulos seguintes.
+## Object
 
-### `extends`
+Todo objeto criado em Java participa de uma hierarquia comum, mesmo quando o programador não escreve nenhuma relação explícita de herança. Na raiz dessa hierarquia está a classe `Object`, da qual todas as classes derivam direta ou indiretamente. Isso explica por que objetos de classes completamente diferentes possuem certos métodos em comum e por que alguns comportamentos básicos podem ser tratados de forma uniforme pela linguagem.
 
-Em Java, `extends` é a palavra-chave que cria uma relação de herança entre duas classes. Quando você escreve `class Gerente extends Funcionario`, está dizendo ao compilador que `Gerente` é uma extensão de `Funcionario`: tudo o que `Funcionario` oferece em termos de campos e métodos não privados passa a existir também em `Gerente`, sem precisar ser reescrito. É o ponto de partida de toda hierarquia de classes e o elo que conecta os dois papéis que aparecem logo em seguida, o de superclasse e o de subclasse.
+Este capítulo apresenta essa base por meio da própria superclasse `Object`, dos métodos `toString` e `getClass` e da noção de identidade. A intenção é mostrar de onde vêm operações que parecem "existir em todo objeto" e preparar o terreno para os capítulos seguintes, nos quais igualdade e código hash serão analisados com mais precisão.
 
-Sem esse mecanismo, reaproveitar o comportamento de uma classe existente exigiria copiar o código de um lado para o outro ou recriar manualmente cada método. Imagine um sistema de folha de pagamento em que `Funcionario` já calcula salário anual, desconto de imposto e tempo de casa. Se `Gerente`, `Vendedor` e `Estagiario` precisam desse mesmo comportamento com pequenas variações, copiar essas regras para cada classe cria três cópias que envelhecem de forma independente: corrigir um erro no cálculo do imposto passa a exigir três correções, e mais cedo ou mais tarde uma delas será esquecida.
+### Superclasse Object
 
-Com `extends`, esse comportamento comum fica em um único lugar. A subclasse declara apenas o que a diferencia:
+Toda classe criada em Java, mesmo sem que isso seja escrito explicitamente, estende uma classe chamada `Object`. Quando se escreve `public class Cliente { ... }`, o compilador entende isso como se fosse `public class Cliente extends Object { ... }`, ainda que a palavra `extends Object` nunca apareça no código. `Object` é o topo de toda a hierarquia de classes em Java: todas as classes, sejam as do próprio Java (`String`, `Integer`, `ArrayList`) ou as criadas pelo programador (`Cliente`, `Produto`, `Pedido`, vistos no Módulo 8), descendem dela, direta ou indiretamente.
+
+Isso resolve um problema prático: sem uma superclasse comum, cada classe teria que reimplementar do zero um conjunto mínimo de comportamentos que praticamente todo objeto precisa ter, como uma forma de se representar como texto ou uma forma de ser comparado a outro objeto. `Object` define esse conjunto mínimo de métodos — entre eles `toString()`, `equals()`, `hashCode()` e `getClass()`, cada um tratado em detalhe nos próximos conceitos — e toda classe já nasce com uma implementação padrão deles, herdada automaticamente, sem que o programador precise escrever nada.
 
 ```java
-class Funcionario {
-    String nome;
-    double salario;
+public class Produto {
+    private String nome;
+    private double preco;
+    // nenhum método de Object foi escrito aqui,
+    // mas Produto já possui toString(), equals(), hashCode() e getClass()
+}
 
-    double salarioAnual() {
-        return salario * 12;
+Produto p = new Produto();
+System.out.println(p.toString()); // funciona mesmo sem Produto ter escrito toString
+```
+
+Esse comportamento tem uma consequência importante para quem já viu herança no Módulo 8: assim como uma classe filha herda campos e métodos de uma superclasse escrita pelo programador, toda classe herda automaticamente os métodos de `Object`, ainda que ninguém tenha escrito explicitamente essa relação de herança. É por isso que é possível chamar `.toString()` ou `.equals()` em qualquer objeto, de qualquer classe, mesmo em classes recém-criadas que não implementaram nada disso — o método existe porque veio de `Object`, e pode ser usado com o comportamento padrão ou sobrescrito (usando `@Override`, já visto no Módulo 8) para se comportar de um jeito mais adequado àquela classe específica.
+
+Uma analogia útil é pensar em `Object` como um "contrato mínimo" que toda classe em Java assina automaticamente ao ser criada — como um documento de identidade que toda pessoa recebe ao nascer, contendo alguns campos padrão preenchidos de forma genérica, que podem depois ser complementados ou corrigidos, mas que já garantem que a pessoa "existe" de um jeito reconhecível pelo sistema. Não é possível "não estender" `Object` — mesmo classes que já estendem outra classe (`Gerente extends Funcionario`, por exemplo) continuam, no topo dessa cadeia, chegando em `Object`, porque a hierarquia de herança em Java sempre termina ali. Entender esse ponto de partida é a base para os próximos conceitos deste capítulo, que exploram individualmente os métodos mais importantes que `Object` fornece.
+
+### toString
+
+`toString()` é um método herdado de `Object` que converte um objeto em uma representação textual (`String`). Ele é chamado automaticamente em situações como `System.out.println(objeto)` ou quando um objeto é concatenado com uma `String` usando `+`, e também pode ser chamado explicitamente com `objeto.toString()`.
+
+A implementação padrão herdada de `Object`, quando nenhuma outra é escrita, produz um texto pouco útil: o nome completo da classe seguido de um código em hexadecimal derivado do hash do objeto, como `Produto@1b6d3586`. Esse texto identifica tecnicamente o objeto, mas não diz nada sobre o que ele representa — não mostra o nome do produto, o preço, ou qualquer informação relevante para quem está lendo a saída do programa. Antes de sobrescrever `toString`, depurar um programa (por exemplo, imprimir um objeto para conferir seu estado) resultava exatamente nesse texto genérico, forçando o programador a imprimir manualmente cada campo, um por um, com várias chamadas a `System.out.println`.
+
+A solução é sobrescrever `toString()` na própria classe, retornando uma `String` construída a partir dos campos que fazem sentido mostrar:
+
+```java
+public class Produto {
+    private String nome;
+    private double preco;
+
+    @Override
+    public String toString() {
+        return "Produto{nome='" + nome + "', preco=" + preco + "}";
     }
 }
 
-class Gerente extends Funcionario {
-    double bonus;
+Produto p = new Produto("Teclado", 150.0);
+System.out.println(p); // Produto{nome='Teclado', preco=150.0}
+```
 
-    double remuneracaoTotal() {
-        return salarioAnual() + bonus; // salarioAnual() veio da superclasse
+Com essa sobrescrita, qualquer lugar do programa que exiba o objeto — um `println`, um log de erro, uma mensagem de depuração — passa a mostrar automaticamente uma descrição legível, sem que o programador precise lembrar de formatar isso manualmente toda vez. É um dos métodos mais frequentemente sobrescritos em Java, porque o ganho em clareza durante o desenvolvimento e a depuração é imediato e praticamente sem custo.
+
+Uma alternativa parcial é não sobrescrever `toString` e, em vez disso, escrever métodos específicos de exibição (como `imprimirResumo()`), mas isso exige lembrar de chamar esse método toda vez, enquanto `toString()` é aproveitado automaticamente por `println` e pela concatenação com `String`, por já fazer parte do contrato herdado de `Object`. Quando não sobrescrever: em classes puramente internas, usadas só como estrutura de apoio dentro do próprio código e nunca exibidas ao usuário nem inspecionadas em depuração, a implementação padrão costuma ser suficiente e sobrescrever seria esforço sem retorno prático.
+
+### getClass
+
+`getClass()` é outro método herdado de `Object`, presente em todo objeto Java, que devolve um objeto do tipo `Class` representando a classe exata daquele objeto em tempo de execução. Diferente de `toString`, que descreve o conteúdo de um objeto, `getClass()` descreve o tipo do objeto — qual classe, entre todas as existentes no programa, foi usada para criá-lo com `new`.
+
+Sem esse método, não haveria uma forma direta, em tempo de execução, de perguntar a um objeto "de que classe você realmente é". Isso importa em situações de herança e polimorfismo, já vistas no Módulo 8: uma variável do tipo `Funcionario` pode, na prática, estar guardando um objeto da subclasse `Gerente`. O tipo declarado da variável (`Funcionario`) é fixo em tempo de compilação, mas `getClass()` revela o tipo real do objeto armazenado ali, em tempo de execução:
+
+```java
+Funcionario f = new Gerente("Ana", 8000);
+System.out.println(f.getClass());       // class Gerente
+System.out.println(f.getClass().getSimpleName()); // Gerente
+```
+
+`getClass().getName()` devolve o nome completo da classe (incluindo o pacote, se houver), enquanto `getClass().getSimpleName()` devolve apenas o nome da classe, sem o pacote — geralmente mais útil em mensagens voltadas ao usuário final ou em logs de depuração. `getClass()` também é usado internamente por implementações corretas de `equals()` (visto no próximo capítulo), para verificar se dois objetos comparados são realmente da mesma classe antes de comparar seus campos.
+
+Uma analogia é pensar em `getClass()` como uma etiqueta de fábrica presa a cada objeto, indicando exatamente qual "linha de produção" (classe) o originou — mesmo que o objeto esteja guardado em uma caixa rotulada de forma mais genérica (o tipo declarado da variável), a etiqueta interna sempre revela a origem exata. Esse método raramente precisa ser sobrescrito (na verdade, `getClass()` nem pode ser sobrescrito, ao contrário de `toString` e `equals`) — ele é usado como está, principalmente em código que precisa tomar decisões baseadas no tipo real de um objeto, em comparações de igualdade, ou em ferramentas de depuração e logging que precisam relatar informações precisas sobre os objetos que manipulam.
+
+### Identidade
+
+Identidade — a propriedade de que cada `new` cria um objeto único na memória, mesmo que dois objetos tenham exatamente os mesmos valores em todos os campos — já foi vista em detalhe no Módulo 8, ao estudar o que é um objeto. Vale retomá-la aqui, de forma breve, porque ela é a peça que faltava para entender por completo os métodos que `Object` fornece: assim como a implementação padrão de `toString()` produz um texto genérico por não saber nada sobre o conteúdo específico de cada classe, a implementação padrão de `equals()` — ainda não vista em detalhe — também recorre à identidade como critério de comparação, e não há como entender por que isso é um problema sem antes ter identidade bem clara na cabeça.
+
+```java
+Produto p1 = new Produto("Teclado", 150.0);
+Produto p2 = new Produto("Teclado", 150.0);
+Produto p3 = p1;
+
+// p1 e p2: objetos diferentes, mesmo conteúdo — identidades distintas
+// p1 e p3: a MESMA identidade — p3 aponta para o mesmo objeto que p1
+```
+
+Repare que, do ponto de vista de quem lê o código, `p1` e `p2` representam "o mesmo produto" em termos de conteúdo, mas continuam sendo dois objetos separados na memória — é exatamente essa tensão, entre "são o mesmo objeto" e "representam a mesma coisa", que os próximos capítulos (Igualdade e hashCode) exploram em detalhe: como o operador `==` compara identidade explicitamente, como e por que sobrescrever `equals()` para comparar conteúdo em vez de identidade, e por que `hashCode()` precisa acompanhar essa mudança quando ela acontece.
+
+Sem essa distinção fixada, é fácil confundir "dois objetos com o mesmo conteúdo" com "o mesmo objeto" — um erro que gera bugs sutis, como alterar um campo através de `p3` e ver essa alteração refletida em `p1` (porque são o mesmo objeto), enquanto alterar `p2` nunca afeta `p1` (porque são objetos independentes que só coincidem em conteúdo no momento da criação). Fixar identidade agora é o que permite, no capítulo seguinte, entender com precisão o que `==` e `equals()` realmente comparam por padrão — e por que, às vezes, comparar por identidade não é o que o programa precisa.
+
+## Igualdade
+
+Dizer que dois objetos são "iguais" pode significar coisas diferentes. Duas variáveis podem apontar exatamente para a mesma instância na memória, ou podem apontar para objetos distintos que representam, segundo as regras do domínio, a mesma informação. Em Java, essas duas ideias não são tratadas automaticamente como equivalentes, e confundi-las leva a comparações incorretas.
+
+Este capítulo separa identidade de igualdade lógica usando `==` e `equals`. O leitor verá que `==` responde sobre referências, enquanto `equals` pode ser definido para expressar quando dois objetos devem ser considerados equivalentes pelo conteúdo ou significado. Essa distinção é fundamental antes de estudar `hashCode`, porque os dois conceitos formam um contrato usado por várias estruturas da biblioteca Java.
+
+### `==`
+
+O operador `==`, já usado desde os primeiros módulos do livro para comparar valores de tipos primitivos (`int`, `double`, `boolean`), tem um comportamento diferente quando aplicado a objetos: em vez de comparar conteúdo, `==` compara identidade — ou seja, verifica se as duas variáveis apontam exatamente para o mesmo objeto na memória, conforme o conceito de identidade visto no capítulo anterior.
+
+```java
+Produto p1 = new Produto("Teclado", 150.0);
+Produto p2 = new Produto("Teclado", 150.0);
+Produto p3 = p1;
+
+System.out.println(p1 == p2); // false — objetos diferentes, mesmo conteúdo
+System.out.println(p1 == p3); // true — mesma identidade
+```
+
+O problema que costuma surgir aqui é usar `==` esperando uma comparação de conteúdo, como se estivesse comparando dois `int`. Um programador vindo da intuição de que "`==` compara se duas coisas são iguais" pode escrever `if (p1 == p2)` esperando `true` quando os dois produtos têm o mesmo nome e preço, e se surpreender ao receber `false`, porque `p1` e `p2`, apesar do conteúdo idêntico, são dois objetos distintos criados por dois `new` separados.
+
+`==` continua sendo o operador correto para comparar tipos primitivos (que não têm identidade, apenas valor) e também é útil, propositalmente, quando se quer mesmo verificar identidade entre objetos — por exemplo, checar se uma variável aponta para `null`, ou verificar se duas referências apontam deliberadamente para o mesmo objeto compartilhado, algo comum ao trabalhar com relacionamentos entre classes, como visto no Módulo 8:
+
+```java
+if (produtoSelecionado == null) {
+    System.out.println("Nenhum produto selecionado.");
+}
+```
+
+Uma analogia: comparar dois objetos com `==` é como perguntar "essas duas chaves abrem a mesma porta física?", em vez de perguntar "essas duas chaves têm o mesmo formato e cor?". Duas chaves podem ser fisicamente idênticas em aparência (mesmo conteúdo) sem serem a mesma chave (identidades diferentes), assim como uma única chave, emprestada e devolvida, continua sendo a mesma chave todo o tempo (mesma identidade), não importa quantas vezes ela mude de mão.
+
+Quando o objetivo é comparar se dois objetos representam "a mesma coisa" em termos de conteúdo — o mesmo produto, o mesmo cliente, o mesmo CPF —, `==` não é a ferramenta certa, porque avalia identidade, não conteúdo. Esse é exatamente o problema que o próximo conceito, `equals`, resolve.
+
+### equals
+
+`equals()` é um método herdado de `Object` (visto no capítulo anterior) que existe justamente para permitir comparar objetos por conteúdo, e não apenas por identidade como `==` faz. A implementação padrão herdada de `Object`, quando ninguém a sobrescreve, na verdade se comporta exatamente como `==`: compara se as duas referências apontam para o mesmo objeto. Ou seja, sem nenhuma customização, `equals` e `==` produzem o mesmo resultado — o que costuma surpreender quem espera que `equals` já compare conteúdo "de graça".
+
+```java
+Produto p1 = new Produto("Teclado", 150.0);
+Produto p2 = new Produto("Teclado", 150.0);
+
+System.out.println(p1.equals(p2)); // false, sem sobrescrita — comporta-se como ==
+```
+
+O problema, antes de sobrescrever `equals`, é que não há forma direta de perguntar "esses dois produtos representam a mesma coisa?" quando o que importa é o conteúdo (mesmo nome, mesmo preço), não a identidade do objeto na memória. A solução é sobrescrever `equals()` na classe, comparando os campos relevantes:
+
+```java
+@Override
+public boolean equals(Object outro) {
+    if (this == outro) return true;
+    if (outro == null || getClass() != outro.getClass()) return false;
+    Produto p = (Produto) outro;
+    return preco == p.preco && nome.equals(p.nome);
+}
+```
+
+Essa implementação segue um padrão comum: primeiro verifica identidade (`this == outro`, um atalho rápido — se são o mesmo objeto, com certeza são "iguais"); depois verifica se `outro` é `null` ou de uma classe diferente (usando `getClass()`, visto no capítulo anterior); por fim, faz o cast para o tipo correto e compara os campos que definem a igualdade lógica daquela classe. Repare que a comparação de `nome`, que é uma `String`, usa `.equals()` recursivamente, e não `==`, porque `String` também é um objeto — comparar duas `String` com `==` teria o mesmo problema de identidade descrito no conceito anterior.
+
+Depois de sobrescrito, `equals` passa a ser usado automaticamente por estruturas do próprio Java, como listas, ao procurar um elemento (`lista.contains(produto)`), tornando a comparação por conteúdo algo nativo do código, sem exigir lógica manual repetida em todo lugar que precise comparar dois objetos daquela classe.
+
+### Igualdade por identidade
+
+Igualdade por identidade é o nome dado ao tipo de comparação que `==` realiza sobre objetos, já vista no conceito anterior: comparar se duas referências levam ao mesmo objeto na memória. Isolar esse conceito com nome próprio ajuda a diferenciá-lo claramente do próximo, igualdade lógica, já que os dois convivem em Java e é fácil confundi-los.
+
+```java
+Cliente c1 = new Cliente("Ana", "ana@email.com");
+Cliente c2 = c1;
+
+System.out.println(c1 == c2); // true — igualdade por identidade
+```
+
+Sem essa noção nomeada, seria fácil tratar `==` como "só mais uma forma de comparar", sem entender por que ela às vezes concorda com `equals` (quando as duas variáveis apontam para o mesmo objeto) e às vezes diverge completamente dele (quando os objetos têm conteúdo igual mas identidades diferentes). Igualdade por identidade resolve exatamente o caso em que o que importa é saber se duas referências levam ao mesmíssimo objeto — por exemplo, verificar se uma variável de controle ainda aponta para o mesmo objeto que foi armazenado antes em uma estrutura, ou detectar dois nomes diferentes (`c1` e `c2`) usados para a mesma entidade.
+
+Um exemplo real de uso: em um sistema de cache, é comum querer saber se o objeto retornado agora é literalmente o mesmo objeto já guardado antes (evitando recriar algo que já existe), e não apenas um objeto com o mesmo conteúdo — nesse caso, `==` é exatamente a ferramenta certa, e usar `equals` sobrescrito seria enganoso, porque poderia dizer "iguais" mesmo para dois objetos fisicamente diferentes.
+
+A analogia da chave física, usada no conceito de `==`, se aplica diretamente aqui: igualdade por identidade pergunta se duas chaves são fisicamente a mesma chave, não se têm o mesmo formato. Quando não usar igualdade por identidade: sempre que o objetivo do programa for comparar o significado ou o conteúdo de dois objetos — dois `Produto` que descrevem o mesmo item, dois `Cliente` com o mesmo CPF — usar apenas `==` levaria a resultados tecnicamente corretos, porém inúteis para a lógica de negócio, porque quase nunca dois objetos criados separadamente serão literalmente o mesmo objeto, mesmo representando "a mesma coisa" do ponto de vista do problema que o programa resolve.
+
+### Igualdade lógica
+
+```java
+Produto p1 = new Produto("Teclado", 150.0);
+Produto p2 = new Produto("Teclado", 150.0);
+
+System.out.println(p1 == p2);       // false — identidades diferentes
+System.out.println(p1.equals(p2));  // true — igualdade lógica, mesmo conteúdo
+```
+
+Repare a diferença entre as duas linhas: mesmo com identidades diferentes, `p1.equals(p2)` retorna `true`, porque `Produto` sobrescreve `equals()` (como visto no conceito `equals`) para comparar conteúdo em vez de posição na memória. Esse resultado tem nome: igualdade lógica, o tipo de comparação que `equals()` sobrescrito realiza, considerando "iguais" objetos cujo conteúdo relevante é equivalente, independentemente de serem ou não o mesmo objeto na memória — o complemento direto da igualdade por identidade vista no conceito anterior. Juntas, as duas formam o par de comparações que Java oferece para objetos.
+
+O problema que a igualdade lógica resolve é justamente a limitação da igualdade por identidade em contextos onde o que importa, para o programa, é o significado do objeto, não sua posição na memória. Um sistema de pedidos que precisa verificar "este cliente já fez este pedido antes?" não está interessado em saber se os dois objetos `Pedido` comparados são literalmente o mesmo objeto — está interessado em saber se representam a mesma compra, com os mesmos dados. `equals()`, sobrescrito para comparar os campos relevantes (como visto no conceito `equals` acima), resolve exatamente esse tipo de pergunta.
+
+Um exemplo real de uso é comparar dois objetos `Cliente` pelo CPF, ignorando outros campos que possam variar sem alterar a identidade da pessoa (como um telefone atualizado):
+
+```java
+@Override
+public boolean equals(Object outro) {
+    if (this == outro) return true;
+    if (outro == null || getClass() != outro.getClass()) return false;
+    Cliente c = (Cliente) outro;
+    return cpf.equals(c.cpf); // igualdade lógica baseada só no CPF
+}
+```
+
+Repare que essa implementação decide, deliberadamente, que dois `Cliente` são "iguais" quando têm o mesmo CPF, mesmo que outros campos sejam diferentes — essa decisão de quais campos definem a igualdade lógica de uma classe é sempre do programador, e deve refletir o que "ser igual" significa de fato no domínio do problema, não uma regra genérica aplicável a qualquer classe.
+
+Uma alternativa a implementar igualdade lógica manualmente é usar registros (`record`, um recurso mais recente de Java) ou bibliotecas que geram `equals` automaticamente a partir dos campos, mas o entendimento de como a comparação funciona por baixo continua sendo o mesmo. Quando não sobrescrever `equals` para obter igualdade lógica: em classes onde nunca faz sentido comparar dois objetos por conteúdo — por exemplo, classes que representam um recurso único e não substituível, como uma conexão de rede aberta — a igualdade por identidade padrão, herdada de `Object`, já é o comportamento correto, e sobrescrever `equals` nesses casos criaria uma noção de igualdade sem utilidade real para o problema.
+
+## hashCode
+
+Objetos nem sempre são comparados percorrendo todos os seus dados um a um. Algumas estruturas precisam localizar valores rapidamente e, para isso, usam um número calculado a partir do objeto: o hash code. Esse número não substitui a igualdade, mas funciona como uma forma de organizar objetos em grupos prováveis antes de uma comparação mais precisa.
+
+Este capítulo apresenta a ideia de hash e, principalmente, o contrato que liga `hashCode` a `equals`: objetos considerados iguais precisam produzir códigos hash compatíveis. Serão discutidas as consequências práticas de quebrar essa regra, preparando o leitor para entender futuramente estruturas como `HashSet` e `HashMap`. O objetivo não é estudar algoritmos de hashing em profundidade, mas compreender por que esse método existe em todo objeto Java.
+
+### Contrato com equals
+
+`hashCode()` é outro método herdado de `Object`, que devolve um número inteiro (um "código hash") calculado a partir do objeto. Ele está diretamente ligado a `equals()`, através de uma regra obrigatória conhecida como o contrato entre `equals` e `hashCode`: se dois objetos são considerados iguais por `equals()` (`a.equals(b)` retorna `true`), então `a.hashCode()` e `b.hashCode()` devem obrigatoriamente devolver o mesmo valor. O contrário não precisa ser verdade — dois objetos podem ter o mesmo `hashCode` sem serem `equals`, mas nunca o oposto.
+
+O problema que motiva essa regra é que várias estruturas do próprio Java (apresentadas de forma introdutória neste livro ao tratar de coleções) usam `hashCode()` como um atalho de desempenho: antes de comparar dois objetos em detalhe com `equals()`, elas primeiro comparam os `hashCode()`, porque calcular e comparar um número inteiro é muito mais rápido do que comparar todos os campos de um objeto. Se uma classe sobrescreve `equals()` (dizendo que dois objetos com o mesmo CPF são iguais, por exemplo) mas não sobrescreve `hashCode()` de forma coerente, essas estruturas podem tratar como diferentes dois objetos que o próprio programa considera iguais, produzindo bugs difíceis de rastrear.
+
+```java
+public class Cliente {
+    private String cpf;
+
+    @Override
+    public boolean equals(Object outro) {
+        if (this == outro) return true;
+        if (outro == null || getClass() != outro.getClass()) return false;
+        return cpf.equals(((Cliente) outro).cpf);
+    }
+
+    @Override
+    public int hashCode() {
+        return cpf.hashCode(); // coerente com equals: mesmo cpf => mesmo hashCode
     }
 }
 ```
 
-`Gerente` não repete `nome`, `salario` nem `salarioAnual()`; ela recebe tudo isso pronto e acrescenta o campo `bonus` e um método próprio. Uma regra importante da linguagem: uma classe só pode usar `extends` sobre uma única classe por vez — não existe herança múltipla de classes em Java —, ainda que uma mesma classe possa implementar várias interfaces, assunto de outro módulo.
+A regra prática, portanto, é: toda vez que `equals()` é sobrescrito, `hashCode()` deve ser sobrescrito junto, baseado exatamente nos mesmos campos usados para decidir a igualdade lógica. Se `equals` compara apenas `cpf`, `hashCode` deve ser calculado apenas a partir de `cpf` — nunca incluir um campo em `hashCode` que não participa de `equals`, e vice-versa, sob pena de quebrar o contrato.
 
-A principal alternativa a `extends` é a composição: em vez de `Gerente` ser um `Funcionario`, ela teria um campo do tipo `Funcionario` e encaminharia as chamadas para ele. A escolha entre herdar e compor se decide no conceito de "relação é um", ainda neste capítulo, e volta a aparecer mais adiante no curso. Fora isso, quando não há relação de tipo nenhuma entre as classes e se quer apenas reaproveitar uma função de cálculo isolada, um método estático utilitário resolve sem herança e sem composição.
+Uma analogia: pensar no `hashCode` como o CEP de um endereço e no `equals` como a conferência completa do endereço. Duas casas no mesmo CEP não são necessariamente a mesma casa (hashCodes iguais não implicam objetos iguais), mas duas casas que são comprovadamente a mesma (iguais por `equals`) obrigatoriamente compartilham o mesmo CEP — seria uma contradição dizer que são a mesma casa, mas em CEPs diferentes. É essa consistência entre os dois métodos que o contrato exige, e ela é a base para o próximo conceito, que trata de como os hashes são efetivamente usados na prática.
 
-Evite `extends` quando a ligação entre as classes for de posse e não de identidade — a distinção entre "é um" e "tem um" que o capítulo fecha mais adiante —, quando você herdaria apenas para aproveitar um ou dois métodos convenientes, ou quando a superclasse não foi projetada para ser estendida e expõe detalhes internos que a subclasse poderia quebrar sem perceber.
+### Hashes
 
-### Superclasse
+Um hash, no sentido em que `hashCode()` o produz, é um número inteiro calculado a partir do conteúdo de um objeto, funcionando como uma espécie de "resumo numérico" desse conteúdo. A ideia central é que objetos com o mesmo conteúdo relevante (segundo `equals`) produzam sempre o mesmo hash, e que objetos com conteúdos diferentes tendam, na maioria dos casos, a produzir hashes diferentes — embora colisões (dois conteúdos diferentes gerando o mesmo hash) sejam possíveis e até esperadas, apenas menos frequentes.
 
-A superclasse é a classe que está acima na hierarquia de herança: aquela cujos campos e métodos são herdados por outras. Quando escrevemos `class Gerente extends Funcionario`, `Funcionario` é a superclasse — também chamada de classe-base, classe-mãe ou classe-pai. Ela concentra o que há de comum entre várias classes mais específicas e funciona como um molde geral a partir do qual as variações são construídas. A divisão de papéis entre superclasse e subclasse é o eixo de todo o capítulo: a superclasse define o comum, a subclasse define o particular.
-
-Sem o conceito de superclasse, cada classe seria uma ilha. Um cadastro de veículos com `Carro`, `Moto` e `Caminhao` repetiria em cada uma os mesmos campos `placa`, `ano` e `quilometragem`, além de métodos como `registrarViagem()`. Qualquer mudança de regra — por exemplo, passar a validar a placa em um novo formato — teria de ser propagada manualmente por todas as classes, com o risco de esquecer alguma.
-
-Reunindo esse núcleo comum em uma superclasse `Veiculo`, o código passa a ter uma única fonte de verdade:
+Como já vimos no conceito anterior, comparar `hashCode()` é mais rápido do que comparar campo por campo — mas isso explica só metade do ganho. A outra metade vem de como o hash é usado na prática: ele permite agrupar objetos em "regiões" (ou "baldes"), de modo que localizar um objeto não exige percorrer a coleção inteira, apenas calcular seu hash e ir direto à região correspondente, em vez de comparar um por um até achar o certo. É esse agrupamento — e não só a comparação mais rápida — que torna estruturas baseadas em hash eficientes mesmo com milhões de itens armazenados.
 
 ```java
-class Veiculo {
-    String placa;
-    int ano;
-    double quilometragem;
+public class Produto {
+    private String codigo;
+    private double preco;
 
-    void registrarViagem(double km) {
-        quilometragem += km;
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(codigo, preco);
     }
-}
 
-class Caminhao extends Veiculo {
-    double capacidadeCarga;
-}
-```
-
-`Caminhao` já nasce com `placa`, `ano`, `quilometragem` e `registrarViagem()`. Em Java, mesmo quando uma classe não declara `extends`, ela ainda tem uma superclasse implícita: `Object`, a raiz de toda a hierarquia. É de lá que todo objeto herda métodos como `toString()` e `equals()`. Uma superclasse também pode ter a sua própria superclasse, formando uma cadeia (`Caminhao` → `Veiculo` → `Object`).
-
-Nem todo comportamento comum precisa morar numa superclasse: ele pode ficar em uma classe utilitária separada, acionada por composição, ou virar apenas um contrato em uma interface, com a implementação escrita onde for necessário. Cada opção tem seu lugar, discutido no módulo de abstração.
-
-Convém não inchar a superclasse com comportamento que serve só a algumas subclasses. Se `Veiculo` ganha um método `emitirNotaDeFrete()` que só faz sentido para `Caminhao`, todas as demais subclasses passam a carregar algo irrelevante. O sinal de uma boa superclasse é que tudo nela faz sentido para qualquer subclasse, sem exceção.
-
-### Subclasse
-
-A subclasse é o outro lado da relação de herança: a classe que herda de outra, recebe seus campos e métodos e pode acrescentar os seus próprios. Em `class Gerente extends Funcionario`, `Gerente` é a subclasse — também chamada de classe derivada, classe-filha ou classe estendida. Ela representa uma versão mais especializada da superclasse: mantém tudo o que a classe-base oferece e adiciona aquilo que a torna distinta.
-
-O problema que a subclasse resolve aparece quando já existe um tipo geral que funciona, mas é preciso ter variações dele. Sem herança, criar essa variação significaria uma de duas coisas: modificar a classe geral para tentar acomodar todos os casos especiais — enchendo-a de condicionais e de campos que só valem às vezes — ou recriar a classe inteira do zero só para mudar um detalhe. A primeira alternativa torna a classe geral confusa; a segunda multiplica código.
-
-Como subclasse, a variação fica enxuta e focada:
-
-```java
-class ContaBancaria {
-    protected double saldo;
-
-    void sacar(double valor) {
-        if (valor <= saldo) {
-            saldo -= valor;
-        }
-    }
-}
-
-class ContaEspecial extends ContaBancaria {
-    double limite;
-
-    double saldoDisponivel() {
-        return saldo + limite; // 'saldo' foi herdado
+    @Override
+    public boolean equals(Object outro) {
+        if (this == outro) return true;
+        if (outro == null || getClass() != outro.getClass()) return false;
+        Produto p = (Produto) outro;
+        return codigo.equals(p.codigo) && preco == p.preco;
     }
 }
 ```
 
-`ContaEspecial` reaproveita `saldo` e `sacar()` e descreve apenas o que é novo. A subclasse pode acrescentar campos e métodos e também pode redefinir um método herdado para se comportar de outra forma — isso é a sobrescrita, tema do próximo capítulo. Um detalhe de acesso: a subclasse enxerga os membros `public` e `protected` da superclasse, mas não os `private`; para expor algo apenas à descendência, usa-se `protected`.
+O método utilitário `Objects.hash(...)`, usado no exemplo, combina os hashes de vários campos em um único número, sendo a forma mais comum e segura de implementar `hashCode()` manualmente sem correr o risco de errar a fórmula matemática por conta própria. Ele calcula automaticamente um hash combinado a partir da lista de campos passada, exatamente os mesmos campos usados em `equals()`, respeitando o contrato visto no conceito anterior.
 
-Fora a herança, essa variação poderia ser modelada por composição — a `ContaEspecial` manteria uma `ContaBancaria` interna e delegaria chamadas a ela — ou por um campo de configuração na própria classe geral, um atributo `tipo` com comportamento condicional, o que costuma ser aceitável quando as diferenças são pequenas e pontuais.
+Uma analogia: pensar no hash como o número de um armário em um sistema de armários numerados por sobrenome — várias pessoas com sobrenomes diferentes podem, por coincidência, cair no mesmo número (colisão), mas a numeração ainda assim reduz drasticamente o tempo de busca, porque em vez de vasculhar todos os armários, basta calcular o número esperado e checar apenas aquela região. Alternativas a implementar `hashCode` manualmente incluem herdar a implementação padrão de `Object` (baseada na identidade do objeto), mas essa alternativa só é válida quando `equals` também não foi sobrescrito — caso contrário, o contrato é quebrado. Quando não se preocupar tanto com hashes: em classes que nunca serão usadas dentro de estruturas que dependem de hash, o cuidado extra de escrever `hashCode` manualmente traz pouco benefício prático imediato, embora seja sempre boa prática mantê-lo coerente com `equals` por segurança futura.
 
-Criar uma subclasse deixa de ser boa ideia quando ela precisa "desfazer" coisas da superclasse: ignorar métodos herdados, lançar erro em operações que a base permite ou esconder campos. Isso é sinal de que ela não é de fato uma especialização, e forçar a herança nesse caso produz hierarquias frágeis e difíceis de entender.
+### Consequências práticas
 
-### Relação "é um"
+Quebrar o contrato entre `equals` e `hashCode` — sobrescrever um sem sobrescrever o outro de forma coerente — não gera um erro de compilação nem uma exceção em tempo de execução: o programa continua rodando normalmente, o que torna esse tipo de bug particularmente traiçoeiro, porque ele só aparece em situações específicas, silenciosamente, sem nenhuma mensagem de erro apontando a causa.
 
-A relação "é um" (em inglês, *is-a*) é o critério que indica quando a herança é apropriada. Antes de escrever `extends`, vale completar a frase: "todo X é um Y". Se ela é verdadeira sem malabarismos — "todo gerente é um funcionário", "toda conta especial é uma conta bancária", "todo triângulo é uma figura geométrica" —, então a herança modela bem o problema, com Y como superclasse e X como subclasse. É essa relação que dá sentido a todos os termos vistos no capítulo.
-
-O ponto que essa ideia resolve é a tentação de usar herança apenas como atalho para reaproveitar código. É comum ver alguém escrever `class Carrinho extends ArrayList` só porque o carrinho precisa guardar uma lista de itens. Tecnicamente compila e funciona, mas "um carrinho é uma lista" é falso: um carrinho *tem* uma lista de itens, além de ter um dono, um valor total e um cupom de desconto. Ao herdar de `ArrayList`, o carrinho passa a expor dezenas de métodos que não fazem sentido para ele (`removeRange`, `ensureCapacity`) e fica preso a uma estrutura interna difícil de trocar depois.
-
-O contraste é com a relação "tem um" (*has-a*), que pede composição — um campo — em vez de herança:
+O cenário mais comum em que isso se manifesta é ao usar um objeto como referência de busca dentro de uma estrutura que organiza itens por hash: se `equals()` foi sobrescrito para comparar por CPF, mas `hashCode()` não foi sobrescrito (continuando com a implementação padrão baseada em identidade, herdada de `Object`), dois objetos `Cliente` com o mesmo CPF — logicamente "iguais" pelo `equals` — terão hashes diferentes, porque a implementação padrão calcula o hash a partir da identidade de cada objeto, não do CPF. O resultado prático é que uma busca por aquele cliente pode "não encontrá-lo", mesmo que um cliente com aquele CPF exato já esteja armazenado, porque a estrutura de busca olhou primeiro na região de hash errada.
 
 ```java
-// "é um": herança faz sentido
-class Fornecedor extends Empresa { }
+// Cliente com equals sobrescrito (por cpf) mas SEM hashCode sobrescrito:
+Cliente c1 = new Cliente("111.111.111-11");
+Cliente c2 = new Cliente("111.111.111-11"); // mesmo CPF, objeto diferente
 
-// "tem um": composição, não herança
-class Pedido {
-    Cliente cliente;          // um pedido tem um cliente
-    List<ItemPedido> itens;   // um pedido tem itens
-}
+System.out.println(c1.equals(c2)); // true — iguais por CPF
+// mas c1.hashCode() != c2.hashCode() (herdado de Object, baseado em identidade)
+// => uma busca por c2 pode não localizar c1, mesmo sendo "iguais"
 ```
 
-Na dúvida, o teste da substituição ajuda: se todo ponto do código que espera um `Y` pudesse receber um `X` sem surpresas, a relação "é um" se sustenta. Se colocar um `X` no lugar de um `Y` quebraria expectativas — porque `X` proíbe operações que `Y` permite, ou muda o significado delas —, a herança está sendo forçada.
+A prevenção é simples e já foi apresentada no primeiro conceito deste capítulo: sempre sobrescrever `hashCode()` junto com `equals()`, usando exatamente os mesmos campos, de preferência com `Objects.hash(...)`. Muitos ambientes de desenvolvimento (IDEs) oferecem geração automática de ambos os métodos ao mesmo tempo, exatamente para evitar que um seja esquecido enquanto o outro é escrito.
 
-A alternativa nesses casos é sempre a composição, que o curso aprofunda adiante sob o lema "composição sobre herança": costuma ser mais flexível por permitir trocar a parte interna e por não acoplar a classe a toda a superfície pública de uma classe-base. A herança por "é um" continua sendo a escolha certa quando existe de fato uma hierarquia de tipos estável e quando se quer aproveitar polimorfismo — tratar vários `X` diferentes de maneira uniforme através do tipo `Y` —, assunto dos próximos capítulos.
+Uma analogia final para fixar a consequência prática: é como catalogar livros em uma biblioteca por um código nas costas do livro (o hash), mas, ao decidir se dois livros são "a mesma edição" (equals), usar o título impresso na capa em vez do código. Um funcionário que confia apenas no código para localizar rapidamente o livro pode nunca encontrar duas cópias que são, na prática, a mesma edição, porque elas foram catalogadas com códigos diferentes por engano. Esse tipo de inconsistência é exatamente o que o contrato entre `equals` e `hashCode` existe para evitar, e por isso os dois métodos devem sempre ser tratados como um par inseparável, nunca sobrescritos isoladamente.
 
-## `super`
+## static
 
-Escolhida a herança para modelar um "é um", a subclasse não vive isolada da classe-mãe: ela precisa, em vários momentos, conversar com ela — pedir que a parte herdada seja inicializada, reaproveitar um comportamento que foi sobrescrito, ou alcançar um membro que ficou encoberto. A palavra-chave `super` é o canal dessa conversa. Este capítulo mostra as três situações em que ela aparece: na chamada de construtores da superclasse, na chamada explícita de métodos da superclasse e no acesso a campos herdados.
+Até agora, campos e métodos foram apresentados principalmente como partes de objetos: cada instância possui seu próprio estado e os métodos atuam sobre ela. Há situações, porém, em que determinado dado ou comportamento pertence ao tipo como um todo, e não a uma instância específica — por exemplo, um contador compartilhado por todos os objetos ou uma função utilitária que não depende do estado de nenhum deles.
 
-### Construtores
+Este capítulo apresenta `static` como o mecanismo usado para representar membros da classe em vez de membros da instância. Serão comparados campos de classe, métodos estáticos, estado compartilhado e o acesso por instância ou pela própria classe. Ao final, o leitor deverá conseguir decidir se determinado membro faz sentido existir uma vez por objeto ou uma única vez para a classe inteira.
 
-Quando um objeto de subclasse é criado, ele precisa ser inicializado em duas frentes: a parte que veio da superclasse e a parte própria da subclasse. Na forma `super(...)`, usada dentro de um construtor, `super` é a maneira de a subclasse chamar explicitamente um construtor da superclasse. É o primeiro elo do diálogo com a classe-mãe e o que garante que a herança comece a partir de uma base já corretamente construída.
+### Campos de classe
 
-A superclasse quase sempre tem campos que só ela sabe inicializar do jeito certo: valores padrão, validações, invariantes que precisam valer desde o primeiro instante. Se a subclasse pudesse simplesmente ignorar essa etapa, o objeto nasceria pela metade — com os campos herdados em estado indefinido e as validações da classe-base nunca executadas. Por isso a linguagem impõe uma regra: todo construtor de subclasse, antes de rodar o próprio corpo, executa um construtor da superclasse. Se você não escrever nada, o compilador insere `super()` sem argumentos como primeira instrução. Se a superclasse não oferece um construtor sem argumentos — porque declarou pelo menos um construtor com parâmetros e nenhum outro —, você é obrigado a chamar `super(...)` você mesmo, passando os argumentos corretos, e essa chamada tem de ser a primeira linha do construtor.
+Um campo declarado com o modificador `static` deixa de pertencer a cada objeto individualmente e passa a pertencer à classe como um todo — existe uma única cópia daquele campo, compartilhada por todos os objetos daquela classe, em vez de uma cópia por objeto, como acontece com os campos de instância vistos no Módulo 8.
 
 ```java
-class Funcionario {
-    private final String nome;
-    private final double salario;
+public class Produto {
+    private String nome;         // campo de instância: cada Produto tem o seu
+    static int totalCriados = 0; // campo de classe: um único valor, compartilhado
 
-    Funcionario(String nome, double salario) {
-        if (salario < 0) throw new IllegalArgumentException("salário negativo");
+    Produto(String nome) {
         this.nome = nome;
-        this.salario = salario;
-    }
-}
-
-class Gerente extends Funcionario {
-    private final double bonus;
-
-    Gerente(String nome, double salario, double bonus) {
-        super(nome, salario);   // primeira instrução: constrói a parte Funcionario
-        this.bonus = bonus;
+        totalCriados++; // incrementa o único contador compartilhado
     }
 }
 ```
 
-Sem a linha `super(nome, salario)`, esse código nem compila, porque `Funcionario` não tem construtor sem argumentos. Com ela, a validação do salário roda antes de `Gerente` acrescentar o bônus. A cadeia sobe até o topo: o construtor de `Gerente` aciona o de `Funcionario`, que aciona o de `Object`.
+O problema que campos `static` resolvem é o de manter uma informação que diz respeito à classe como um todo, não a um objeto específico. Sem `static`, a única forma de guardar "quantos produtos já foram criados" seria através de uma variável externa a todas as instâncias, manuseada manualmente em algum outro ponto do programa, sem nenhuma garantia de que ela realmente refletisse todos os `new Produto(...)` feitos pelo sistema — cada objeto, isoladamente, não tem como saber quantos outros objetos da mesma classe existem, porque cada um só enxerga seus próprios campos de instância.
 
-Há uma variação relacionada: em vez de `super(...)`, um construtor pode chamar `this(...)` para delegar a outro construtor da mesma classe. Vale um ou outro, nunca os dois, e sempre como primeira instrução; o construtor de destino é quem, no fim, chamará `super`. A alternativa a lidar com `super(...)` explícito é dar à superclasse um construtor sem argumentos, deixando o `super()` implícito resolver — cabível quando a inicialização da base é trivial. Um cuidado importante: não chame, a partir de um construtor, métodos que possam estar sobrescritos; durante a execução de `super(...)` a parte da subclasse ainda não foi inicializada, e o método sobrescrito enxergaria campos zerados.
+Um campo `static` é acessado preferencialmente pelo nome da classe, não por uma variável de objeto, justamente para deixar claro que ele não pertence a nenhum objeto específico:
+
+```java
+Produto p1 = new Produto("Teclado");
+Produto p2 = new Produto("Mouse");
+
+System.out.println(Produto.totalCriados); // 2 — acessado pela classe
+```
+
+Ainda que Java também permita acessar um campo `static` através de uma variável de objeto (`p1.totalCriados`), isso é considerado má prática exatamente porque sugere, erradamente, que o campo pertence àquele objeto específico — usar `NomeDaClasse.campo` deixa a intenção explícita para quem lê o código.
+
+Uma analogia útil: pensar em campos de instância como o número de identificação pessoal de cada funcionário de uma empresa (cada um tem o seu, individual) e em um campo `static` como o placar total de funcionários contratados, afixado na parede da recepção — um único placar, visível e compartilhado por todos, que qualquer funcionário pode consultar, mas que não pertence a nenhum funcionário em particular; atualizar esse placar afeta o que todos veem, porque é o mesmo placar para todo mundo.
+
+Um exemplo real de uso é um contador de instâncias (como acima), uma configuração compartilhada por todos os objetos de uma classe (como uma taxa de imposto aplicada a todos os `Produto`), ou um valor padrão usado como base por todos os objetos até serem individualmente alterados. Nem toda informação deve virar `static`, porém: dados que variam legitimamente de objeto para objeto — o nome, o preço, o estoque de cada `Produto` — precisam continuar sendo campos de instância. Os riscos concretos de errar essa escolha são justamente o assunto do próximo conceito, sobre estado compartilhado.
+
+### Métodos estáticos
+
+Assim como campos podem ser `static`, métodos também podem receber esse modificador. Um método `static` pertence à classe, não a um objeto específico, e por isso pode ser chamado sem que exista nenhum objeto criado daquela classe — basta o nome da classe seguido do método, como já é feito, por exemplo, com métodos utilitários vistos ao longo do livro (`Math.sqrt(...)`, `Integer.parseInt(...)`), que na verdade sempre foram métodos estáticos, ainda que isso não tenha sido nomeado explicitamente até agora.
+
+```java
+public class Conversor {
+    static double reaisParaDolares(double reais, double cotacao) {
+        return reais / cotacao;
+    }
+}
+
+double valor = Conversor.reaisParaDolares(100.0, 5.0); // sem nenhum "new Conversor()"
+```
+
+O problema que métodos `static` resolvem é o de expressar uma operação que não depende do estado de nenhum objeto específico — uma conversão de unidades, um cálculo matemático, uma validação genérica de formato — como uma ação isolada, sem forçar o programador a criar um objeto só para executar aquela lógica, o que seria desnecessário e confuso quando não existe nenhum "estado" individual envolvido na operação.
+
+Uma restrição importante de métodos `static` é que eles não podem acessar diretamente campos ou métodos de instância (aqueles que pertencem a cada objeto individualmente), porque, ao ser chamado sem nenhum objeto, um método `static` simplesmente não tem um `this` para se referir — não haveria como saber "de qual objeto" pegar aquele campo de instância. Métodos `static` só podem acessar diretamente outros membros `static` da mesma classe.
+
+```java
+public class Produto {
+    private String nome;      // campo de instância
+    static int totalCriados;  // campo de classe
+
+    static void mostrarTotal() {
+        System.out.println(totalCriados); // ok, static acessando static
+        // System.out.println(nome);      // erro de compilação: nome é de instância
+    }
+}
+```
+
+Uma analogia: um método de instância é como uma ação que só um funcionário específico pode realizar, usando informações pessoais dele (seu crachá, sua mesa); um método `static` é como um procedimento padrão da empresa, documentado em um manual, que qualquer pessoa pode executar sem precisar ser um funcionário específico — o manual não faz referência a nenhuma mesa ou crachá individual.
+
+Métodos `static` são amplamente usados para operações utilitárias (conversões, validações, cálculos), para métodos de fábrica que criam objetos de uma forma controlada, e para o próprio método `main`, que já é `static` desde os primeiros programas escritos neste livro, precisamente porque a JVM precisa chamá-lo antes de qualquer objeto existir. Quando não usar `static`: sempre que o método precisa ler ou alterar o estado individual de um objeto — como `calcularTotal()` de um `Pedido`, que depende dos produtos específicos daquele pedido —, ele deve continuar sendo um método de instância, porque sua lógica é indissociável dos dados daquele objeto específico.
+
+### Estado compartilhado
+
+Como já vimos no conceito anterior, um campo `static` existe em uma única cópia para toda a classe. A consequência direta disso é o que chamamos de estado compartilhado: qualquer alteração feita nesse campo através de um objeto é imediatamente visível para todos os outros objetos da mesma classe — e até mesmo para código que não tem referência a nenhum objeto específico, já que o campo pertence à classe, não a um objeto.
+
+```java
+public class ContaBancaria {
+    static double taxaJuros = 0.02;
+    private double saldo;
+
+    void aplicarJuros() {
+        saldo += saldo * taxaJuros;
+    }
+}
+
+ContaBancaria.taxaJuros = 0.05; // altera a taxa para TODAS as contas de uma vez
+```
+
+O problema que estado compartilhado resolve é manter sincronizada uma informação que deve valer igualmente para todos os objetos de uma classe, sem depender de cada objeto individual ser atualizado manualmente, um por um. No exemplo acima, alterar `taxaJuros` uma única vez através da classe faz com que todo `aplicarJuros()` chamado depois, em qualquer conta, já use o novo valor — não seria necessário (nem seria correto) percorrer cada `ContaBancaria` já criada, alterando seu campo individualmente.
+
+Por outro lado, estado compartilhado é também uma fonte comum de bugs quando usado sem cuidado, precisamente pela mesma razão que o torna útil: como todos os objetos compartilham a mesma cópia, uma alteração feita em um ponto do programa, muitas vezes inesperado, pode afetar o comportamento de partes completamente diferentes do sistema que também dependem daquele mesmo campo `static`, dificultando rastrear a origem de um valor incorreto — é o preço de ter um único ponto de verdade compartilhado por todo o programa.
+
+Uma analogia: pensar em estado compartilhado como o termostato central de um prédio inteiro (o campo `static`), em contraste com o termostato individual de cada apartamento (um campo de instância). Ajustar o termostato central afeta a temperatura de todos os apartamentos ao mesmo tempo, o que é conveniente quando se quer uma mudança uniforme, mas também significa que um morador não pode, sozinho, alterar a temperatura só do seu apartamento através daquele controle central — e um ajuste feito por qualquer morador afeta todos os outros, às vezes de forma indesejada.
+
+Um exemplo real de uso responsável de estado compartilhado é uma configuração global de um sistema, como uma taxa de câmbio, um modo de depuração ligado ou desligado, ou um limite máximo de conexões simultâneas — informações que, por definição, devem ser as mesmas para todo o programa. Quando evitar estado compartilhado: em qualquer situação onde os objetos precisam de independência real entre si — cada `ContaBancaria` com seu próprio saldo já é assim, corretamente, por ser um campo de instância — transformar esse tipo de dado em `static` por engano é um erro comum e sério, que faz todos os objetos passarem a compartilhar o que deveria ser exclusivo de cada um.
+
+### Instância × classe
+
+Este conceito fecha o capítulo amarrando, em contraste direto, tudo o que foi visto sobre `static`: a diferença fundamental entre pertencer à instância (a cada objeto, individualmente) e pertencer à classe (um único elemento, compartilhado por todos os objetos e acessível mesmo sem nenhum objeto existir).
+
+| | Instância | Classe (`static`) |
+|---|---|---|
+| Quantas cópias existem | uma por objeto | uma única, para toda a classe |
+| Como se acessa | `objeto.campo` | `NomeDaClasse.campo` |
+| Precisa de `new` para existir | sim | não |
+| Métodos podem acessar | campos de instância e static | apenas campos static |
+
+```java
+public class Funcionario {
+    private String nome;           // instância: cada funcionário, o seu
+    static String empresa = "TechCorp"; // classe: uma só, para todos
+
+    Funcionario(String nome) {
+        this.nome = nome;
+    }
+
+    void apresentar() {
+        System.out.println(nome + " trabalha na " + empresa);
+    }
+}
+```
+
+No exemplo, `nome` varia de funcionário para funcionário — é exatamente o tipo de dado que os campos de instância existem para representar, como já visto extensivamente no Módulo 8. Já `empresa` é a mesma para todos os objetos `Funcionario` criados, então faz sentido que exista uma única cópia dela, compartilhada, em vez de repetir o mesmo texto "TechCorp" em cada objeto individualmente — o que seria redundante e, pior, arriscado: se a empresa mudasse de nome, seria preciso atualizar esse valor em cada objeto separadamente, campo por campo, em vez de alterar um único valor compartilhado.
+
+A decisão de tornar um campo `static` ou de instância nunca é arbitrária — depende diretamente da pergunta "esse valor varia de objeto para objeto, ou é o mesmo para todos?". Um erro comum de quem está começando é usar `static` só porque simplifica o acesso (não precisa de um objeto para chamar), sem checar se aquele dado realmente deveria ser único e compartilhado; o resultado é um campo que deveria ser individual (como o saldo de uma conta, ou o nome de um produto) virando, por engano, uma única cópia compartilhada por todos os objetos, quebrando a independência que objetos deveriam ter entre si — exatamente o problema descrito no conceito anterior sobre estado compartilhado.
+
+Uma forma prática de decidir, na hora de declarar um novo campo ou método: perguntar se a informação faz sentido existir mesmo antes de qualquer objeto ser criado, ou se é uma configuração global do "tipo" de coisa que a classe representa (nesse caso, `static`); ou se, ao contrário, só faz sentido no contexto de um objeto individual específico, com seu próprio valor (nesse caso, campo de instância, sem `static`). Essa distinção entre instância e classe, bem compreendida, é a base sobre a qual o próximo capítulo constrói mais um modificador importante: `final`, que trata não de onde um campo mora, mas de se ele pode ou não ser alterado depois de definido.
+
+## final e inicialização
+
+Algumas partes de um programa precisam poder mudar; outras devem permanecer fixas depois de definidas. Java oferece `final` para expressar diferentes formas dessa restrição, aplicando-a a campos, métodos e classes. Ao mesmo tempo, para usar corretamente campos que só podem ser atribuídos uma vez, é necessário entender quando e em que ordem a inicialização de uma classe e de seus objetos acontece.
+
+Este capítulo reúne esses assuntos porque `final`, constantes e inicialização se encontram justamente no momento em que valores são definidos. Serão vistos campos `final`, métodos e classes finais, `static final`, blocos de inicialização e a ordem em que diferentes partes da classe são preparadas. Ao final, o leitor terá uma visão mais precisa do ciclo de inicialização de objetos e de como impor imutabilidade ou restrições onde elas são realmente necessárias.
+
+### Campos final
+
+Um campo declarado com o modificador `final` só pode receber um valor uma única vez — depois de atribuído (seja diretamente na declaração, seja dentro de um construtor), esse valor não pode mais ser alterado durante toda a vida do objeto. Diferente de `static`, que decide onde um campo mora (instância ou classe), `final` decide se um campo, uma vez definido, pode ou não mudar depois.
+
+```java
+public class Produto {
+    private final String codigo; // não pode mudar depois de definido
+
+    Produto(String codigo) {
+        this.codigo = codigo; // atribuição única, permitida dentro do construtor
+    }
+
+    void alterarCodigo(String novoCodigo) {
+        // this.codigo = novoCodigo; // erro de compilação: codigo é final
+    }
+}
+```
+
+O problema que campos `final` resolvem é o de garantir, de forma verificada pelo próprio compilador, que certos dados de um objeto não sejam alterados acidentalmente depois de definidos — sem `final`, nada impediria que qualquer método da classe reatribuísse `codigo` a qualquer momento, mesmo quando a lógica do sistema exige que aquele valor seja imutável desde a criação do objeto (um código de produto, um CPF, um identificador único, que não fazem sentido "mudar" depois de definidos).
+
+Um campo `final` pode ser inicializado diretamente na declaração, ou deixado sem valor na declaração e obrigatoriamente atribuído dentro de todo construtor da classe — o compilador verifica, em tempo de compilação, que existe exatamente uma atribuição garantida, nunca zero (o que deixaria o campo sem valor) nem mais de uma (o que contradiria a promessa de `final`).
+
+```java
+public class Circulo {
+    static final double PI_APROXIMADO = 3.14159; // inicializado direto na declaração
+    private final double raio;                   // inicializado no construtor
+
+    Circulo(double raio) {
+        this.raio = raio;
+    }
+}
+```
+
+Uma analogia: um campo `final` é como o número de série gravado permanentemente em um aparelho eletrônico no momento da fabricação — pode ser lido quantas vezes forem necessárias, mas nenhum processo posterior, seja qual for, consegue regravá-lo, porque a gravação foi feita para ser definitiva por definição.
+
+Um exemplo real de uso é qualquer campo que representa uma identidade ou uma característica que não deve mudar depois que o objeto existe: o CPF de um `Cliente`, o código de um `Produto`, a data de criação de um registro. Alternativas a `final` incluem simplesmente não fornecer um método que altere aquele campo (confiando na disciplina do programador para nunca escrever tal método), mas isso não é verificado pelo compilador e pode ser quebrado por um descuido futuro, enquanto `final` transforma essa garantia em uma regra da linguagem, detectada automaticamente. Quando não usar `final`: em qualquer campo que legitimamente muda ao longo da vida do objeto — o saldo de uma conta, a quantidade em estoque de um produto — declarar como `final` impediria até mesmo as atualizações normais e esperadas daquele campo, quebrando a funcionalidade básica da classe.
 
 ### Métodos
 
-Na forma `super.metodo(...)`, `super` chama a versão de um método definida na superclasse, mesmo que a subclasse a tenha sobrescrito. É o segundo uso da palavra-chave: enquanto `super(...)` fala com o construtor da mãe, `super.algumMetodo()` fala com o comportamento da mãe. Aparece quase sempre dentro de um método que está sobrescrevendo outro.
-
-Ao sobrescrever um método, muitas vezes a intenção não é substituir o que a superclasse faz, e sim acrescentar algo ao redor. Sem uma forma de invocar a versão original, a saída seria copiar o corpo do método da superclasse para dentro da subclasse — recriando a duplicação que a herança serve para eliminar e quebrando no dia em que a superclasse mudar. Com `super.metodo()`, o método sobrescrito executa o código da superclasse (um nível acima) e combina esse resultado com o trabalho próprio da subclasse. Essa chamada não passa pelo mecanismo de dynamic dispatch: ela vai direto para a implementação da classe-mãe.
+O modificador `final` também pode ser aplicado a métodos, com um efeito diferente do aplicado a campos: um método `final` não pode ser sobrescrito (`@Override`) por nenhuma subclasse, mesmo que a classe permita herança normalmente. Isso conecta diretamente com o conceito de herança e sobrescrita já estudado no Módulo 8, adicionando uma forma de restringi-la seletivamente, método por método.
 
 ```java
-class Relatorio {
-    String gerar() {
-        return "Cabeçalho\nCorpo";
+public class ContaBancaria {
+    private double saldo;
+
+    final void registrarTransacao(String tipo, double valor) {
+        System.out.println("[LOG] " + tipo + ": " + valor);
+        // lógica de auditoria que não deve ser alterada por subclasses
     }
 }
 
-class RelatorioAuditado extends Relatorio {
-    @Override
-    String gerar() {
-        String base = super.gerar();          // aproveita o que a mãe já faz
-        return base + "\nAssinado em " + LocalDate.now();
-    }
+public class ContaPoupanca extends ContaBancaria {
+    // void registrarTransacao(...) { ... } // erro de compilação: método é final
 }
 ```
 
-`RelatorioAuditado` não reescreve cabeçalho e corpo: delega isso a `super.gerar()` e apenas acrescenta o rodapé de auditoria. O mesmo padrão aparece com frequência no `toString()` de uma subclasse, que devolve `super.toString() + " bonus=" + bonus`.
+Sem esse modificador, nada impediria uma subclasse de sobrescrever `registrarTransacao` e alterar — ou até remover — a lógica de auditoria ali presente, comprometendo uma garantia que a classe base pretendia ser inviolável. É exatamente esse risco que `final` em métodos elimina: um comportamento que a classe base considera crítico ou definitivo, como o do exemplo acima, passa a se comportar sempre da mesma forma, não importa qual subclasse esteja em uso, mantendo os registros de transação confiáveis e consistentes em todo o sistema.
 
-Dois detalhes de sintaxe: `super` sobe um único nível — não existe `super.super`. Numa cadeia `A` → `B` → `C`, se `C.m()` chama `super.m()`, executa `B.m()`; se este também chamar `super.m()`, aí sim alcança `A.m()`. E `super` não vale em métodos `static`. Quanto a alternativas: se a subclasse vai substituir o comportamento por inteiro, basta não chamar `super`. Quando o ponto de extensão é previsível, a superclasse pode oferecer um template method — um método `final` que, internamente, chama um método `protected` de gancho que a subclasse implementa —, poupando a subclasse de lembrar de chamar `super`. Se você se pega chamando `super.m()` e logo desfazendo o efeito dele, o comportamento herdado não servia, e isso é sinal de hierarquia mal escolhida.
+Isso é diferente de simplesmente "não documentar que o método não deveria ser sobrescrito" — uma orientação em comentário não é verificada por ninguém, enquanto `final` é imposto pelo compilador, que rejeita qualquer tentativa de sobrescrita com um erro claro, detectado antes mesmo do programa rodar.
 
-### Campos herdados
+Pensar nisso como uma cláusula contratual marcada como "não negociável" em um contrato-modelo usado por uma franquia ajuda a visualizar a ideia: cada unidade franqueada (subclasse) pode personalizar diversos aspectos do próprio funcionamento, mas certas cláusulas centrais (métodos `final`), definidas pela matriz (a classe base), permanecem exatamente as mesmas em todas as unidades, sem exceção.
 
-Os campos `public` e `protected` declarados na superclasse passam a integrar a subclasse e são acessados diretamente pelo nome, sem nenhuma sintaxe especial: dentro de `ContaEspecial`, escrever `saldo` já alcança o campo que veio de `ContaBancaria`. `super` só entra em cena num caso específico: quando a subclasse declara um campo com o mesmo nome de um campo da superclasse e é preciso se referir ao da superclasse, escrevendo `super.campo`.
+Um exemplo real de uso são métodos que implementam regras de negócio críticas, validações de segurança, ou lógica que faz parte do "núcleo" do comportamento de uma classe e que, se alterada de forma inconsistente entre subclasses, quebraria pressupostos que outras partes do sistema fazem sobre aquele comportamento. Quando não usar `final` em métodos: sempre que a intenção de projeto é justamente permitir que subclasses personalizem aquele comportamento — como métodos pensados para polimorfismo, discutidos no Módulo 8 — marcar como `final` bloquearia exatamente a flexibilidade que a herança deveria oferecer, contrariando o propósito da hierarquia de classes.
 
-Na maior parte do tempo não há problema algum — herdar campo é transparente. A situação em que `super.campo` importa é a ocultação de campo (*field hiding*): se `Subclasse` declara `int contador` e `Superclasse` também tem `int contador`, o objeto passa a carregar dois campos distintos com o mesmo nome. Dentro da subclasse, `contador` e `this.contador` apontam para o novo; `super.contador` aponta para o herdado. Sem `super`, o campo da superclasse ficaria inacessível pelo nome dentro da subclasse.
+### Classes
+
+`final` também pode ser aplicado à própria classe, na sua declaração. Uma classe `final` não pode ser estendida por nenhuma outra classe — ou seja, nenhuma subclasse pode ser criada a partir dela usando `extends`, o que é uma restrição ainda mais ampla do que um método `final` isolado: em vez de proteger um comportamento específico, protege a classe inteira contra herança.
 
 ```java
-class Conta {
-    protected double saldo = 0;
+public final class Configuracao {
+    private String versao;
+    // ...
 }
 
-class ContaComReserva extends Conta {
-    double saldo = 100;   // OCULTA Conta.saldo — quase sempre um erro
-
-    double total() {
-        return super.saldo + this.saldo;   // 0 + 100
-    }
-}
+// public class ConfiguracaoEspecial extends Configuracao { } // erro de compilação
 ```
 
-O exemplo mostra por que ocultar campo costuma ser um defeito e não um recurso: quem lê espera um único `saldo`, mas os métodos herdados de `Conta` continuam mexendo no `saldo` da superclasse, enquanto os métodos de `ContaComReserva` mexem no outro, e os dois valores divergem silenciosamente. Diferente dos métodos, campos não têm dynamic dispatch: qual campo é acessado depende do tipo declarado da referência, não do objeto apontado — mais um motivo para não duplicar nomes. A recomendação prática é direta: nunca reaproveite o nome de um campo herdado. Seguida essa regra, `super.campo` deixa de ser necessário e todo acesso ao campo da base se faz apenas por `saldo` ou `this.saldo`.
+O problema que classes `final` resolvem é impedir que uma classe, cujo comportamento e estrutura devem permanecer exatamente como definidos, seja estendida de formas imprevistas por outras partes do código (ou por outros programadores, em projetos maiores), o que poderia introduzir comportamentos inesperados em lugares que esperam usar aquela classe exatamente como foi projetada. Sem essa restrição, qualquer classe estaria sempre aberta a receber subclasses, mesmo quando isso nunca fez parte da intenção de quem a projetou.
 
-A regra de visibilidade já vista na aula de herança vale igual para campos: a subclasse alcança os `public` e `protected`, nunca os `private` — para estes, recorre aos getters e setters que a superclasse expõe. Aliás, muitas equipes preferem manter todos os campos `private` e oferecer esses acessores à descendência, o que preserva a liberdade de mudar a representação interna depois — uma alternativa ao `protected` aberto. E quando a subclasse precisa de um valor parecido, porém distinto, o caminho certo é um campo com outro nome, não um homônimo. Em resumo: `super` aplicado a campos é uma saída de emergência para um nome mal escolhido, não um estilo de programação.
+Um exemplo bem conhecido no próprio Java é a classe `String`: ela é declarada como `final` justamente porque grande parte do sistema depende de que `String` se comporte sempre de um jeito absolutamente previsível e imutável — se qualquer código pudesse criar uma subclasse de `String` sobrescrevendo métodos como `equals` ou `length`, essa garantia de previsibilidade se perderia, com consequências sérias para qualquer código que dependesse dela.
 
-## Sobrescrita
+Uma analogia: uma classe `final` é como uma peça de fundação de um prédio, projetada para não receber nenhuma modificação estrutural depois de instalada — diferente de uma parede interna (uma classe comum, aberta a herança), que pode ser adaptada, ampliada ou reconfigurada por quem constrói sobre ela, a fundação precisa permanecer exatamente como foi projetada, porque tudo o resto depende da sua estabilidade.
 
-Com a herança estabelecida e a palavra-chave `super` disponível para conversar com a classe-mãe, falta a peça que torna a herança realmente expressiva: a capacidade de a subclasse não apenas acrescentar comportamento, mas redefinir um comportamento que herdou. Este capítulo trata da sobrescrita de métodos — o que significa "sobrescrever" (Override), como a anotação `@Override` transforma um erro silencioso em erro de compilação, e como a JVM escolhe sozinha, em tempo de execução, qual versão de um método chamar (dynamic dispatch). Juntos, esses três pontos são a base do polimorfismo, tema do próximo capítulo.
+Um exemplo real de uso é qualquer classe que representa um valor imutável e completo em si mesma (parecido com o motivo pelo qual campos `final` protegem valores individuais, mas aplicado à classe inteira), ou classes utilitárias que só existem para agrupar métodos `static`, sem nenhuma razão para serem estendidas. Quando não usar `final` em classes: sempre que o próprio propósito da classe é servir de base para variações — como `Funcionario`, pensado desde o Módulo 8 para ser estendido por `Gerente` ou outras subclasses — marcar a classe como `final` eliminaria completamente essa possibilidade, contrariando o próprio motivo pelo qual ela foi desenhada daquela forma.
 
-### Override
+### static final
 
-Override — em português, sobrescrita — é a redefinição, dentro de uma subclasse, de um método herdado da superclasse, preservando a mesma assinatura e substituindo apenas o corpo. É o passo seguinte natural depois de `extends` e `super`: a herança já trouxe o método pronto, e agora a subclasse diz "para mim, esse comportamento é outro". Assinatura igual significa mesmo nome e mesma lista de parâmetros; o tipo de retorno pode ser o mesmo ou um subtipo dele (retorno covariante), o modificador de acesso não pode ser mais restritivo que o da superclasse, e o método sobrescrito não pode declarar exceções verificadas mais amplas do que as originais. Métodos `static`, `final` ou `private` ficam de fora: `final` proíbe a sobrescrita, `private` não é visível para a subclasse, e `static` pertence à classe, não ao objeto.
-
-Sem sobrescrita, toda subclasse ficaria presa ao comportamento da classe-base. A saída seria encher a superclasse de condicionais — um campo `tipo` e um `if` extenso dentro do método, decidindo o que fazer conforme o valor desse campo. Cada nova variação exigiria abrir a superclasse e acrescentar mais um ramo ao `if`, e a classe que deveria ser o "molde geral" viraria um depósito de casos particulares que não se conhecem entre si.
-
-Com a sobrescrita, cada especialização descreve o próprio comportamento no próprio lugar:
+A combinação `static final`, aplicada a um campo, une os dois modificadores estudados neste módulo: o campo pertence à classe como um todo (uma única cópia compartilhada, não uma por objeto, como visto no capítulo anterior) e, além disso, não pode ser alterado depois de inicializado (como qualquer campo `final`). É a combinação mais comum usada para representar valores fixos e globais dentro de uma classe.
 
 ```java
-class Funcionario {
-    double salario;
+public class Circulo {
+    static final double PI = 3.14159265;
+    private final double raio;
 
-    double calcularBonus() {
-        return salario * 0.10;   // regra geral: 10%
+    Circulo(double raio) {
+        this.raio = raio;
     }
-}
 
-class Gerente extends Funcionario {
-    @Override
-    double calcularBonus() {
-        return salario * 0.20 + 500;   // gerente: 20% + adicional fixo
+    double calcularArea() {
+        return PI * raio * raio;
     }
 }
 ```
 
-`Gerente` mantém tudo o que `Funcionario` oferece, mas quando alguém pedir `calcularBonus()` a um gerente, é a versão de `Gerente` que roda. Se a subclasse quiser aproveitar parte do cálculo original, pode chamar `super.calcularBonus()` de dentro da versão nova, como visto no capítulo anterior.
+Usar apenas `static`, sem `final`, deixaria um valor como `PI` tecnicamente sujeito a ser reatribuído em algum ponto do código — o que quebraria a expectativa de que aquele número seja sempre o mesmo em todo o programa. `static final` fecha essa brecha: representa um valor que não varia entre objetos (por isso `static` — não faz sentido cada `Circulo` ter seu próprio "PI") e que também nunca deveria mudar depois de definido (por isso `final` — PI é uma constante matemática, alterá-lo em algum ponto seria um erro grave).
 
-É importante não confundir sobrescrita com sobrecarga (overloading). Sobrecarga é ter, na mesma classe, vários métodos com o mesmo nome e listas de parâmetros diferentes — `imprimir(int)` e `imprimir(String)`. A sobrescrita exige assinatura idêntica e acontece entre superclasse e subclasse. Trocar o tipo de um parâmetro ao "sobrescrever" não sobrescreve nada: cria um método novo que apenas divide o nome com o herdado.
+Por convenção amplamente seguida em Java, campos `static final` são nomeados inteiramente em letras maiúsculas, com palavras separadas por underscore (`PI`, `TAXA_MAXIMA`, `LIMITE_TENTATIVAS`), justamente para sinalizar visualmente, só pelo nome, que aquele campo é uma constante fixa e compartilhada, diferenciando-o à primeira vista de campos comuns de instância.
 
-Como alternativa à sobrescrita, quando as diferenças de comportamento são muitas e mudam com frequência, costuma-se extrair o trecho variável para um objeto à parte, injetado por composição (o padrão Strategy): a classe recebe uma "política de bônus" e delega o cálculo a ela, em vez de depender de subclasses. Para variações pontuais e estáveis, porém, a sobrescrita é mais direta.
+Pense em `static final` como uma medida oficial gravada em uma placa de metal fixada na parede de um laboratório: não pertence a nenhum experimento individual conduzido ali (é compartilhada por todos os experimentos que precisarem consultá-la), e nenhum pesquisador tem permissão de alterá-la, porque é uma referência fixa que todos precisam poder confiar que permanece igual, sempre.
 
-Evite sobrescrever um método para fazê-lo contradizer o contrato da superclasse — lançar exceção onde a base sempre retornava um valor, ou devolver algo com significado diferente do esperado. Quem escreveu código contra o tipo da superclasse conta com aquele comportamento, e uma sobrescrita que o quebra produz bugs difíceis de rastrear. Também não use sobrescrita quando, na verdade, você quer um método novo: se o comportamento não é uma versão diferente de algo herdado, dê a ele outro nome em vez de forçar uma assinatura igual.
+Um exemplo real de uso é justamente o `PI` do exemplo acima: uma constante matemática que todo `Circulo` do programa precisa consultar, sempre com o mesmo valor. O próximo conceito, Constantes, aprofunda essa prática — nomear e centralizar valores fixos usados em vários pontos do código, em vez de duplicá-los manualmente — e o motivo pelo qual ela é tão valorizada. Quando não usar `static final`: sempre que o valor varia de objeto para objeto (então não deveria ser `static`) ou precisa poder mudar ao longo da execução do programa (então não deveria ser `final`) — forçar essa combinação nesses casos tornaria impossível representar corretamente o dado que a classe precisa guardar.
 
-### `@Override`
+### Constantes
 
-`@Override` é uma anotação que se coloca imediatamente antes de um método para declarar que ele tem a intenção de sobrescrever um método de uma superclasse ou de uma interface. Ela não muda o que o método faz — em tempo de execução, o programa se comporta exatamente igual com ou sem a anotação. O que ela faz é dar ao compilador uma afirmação para verificar e, ao leitor humano, um aviso claro de intenção logo na primeira linha do método.
-
-O problema que ela resolve é sutil e frequente. Sobrescrever depende de acertar a assinatura ao pé da letra. Se você erra o nome do método, troca o tipo de um parâmetro ou esquece um argumento, o compilador não reclama: ele entende que você quis criar um método novo, que por acaso mora numa subclasse. O código compila, o programa roda, e a versão herdada — não a sua — é a que executa. Bugs assim consomem horas, porque tudo parece certo.
-
-O caso clássico é o `equals`:
+Uma constante, em Java, é o nome dado na prática a um campo declarado como `static final` (visto no conceito anterior) usado para representar um valor fixo, conhecido de antemão, que não muda durante a execução do programa. Este conceito fecha o capítulo e o módulo amarrando a técnica de `static final` a uma prática de programação concreta e amplamente recomendada: nunca espalhar valores fixos "soltos" pelo código, mas concentrá-los em constantes nomeadas.
 
 ```java
-class Ponto {
-    int x, y;
+public class Pedido {
+    static final double TAXA_ENTREGA = 15.0;
+    static final int LIMITE_ITENS = 50;
 
-    // SEM @Override — e com erro: o parâmetro deveria ser Object
-    public boolean equals(Ponto outro) {
-        return this.x == outro.x && this.y == outro.y;
+    double calcularFrete(int quantidadeItens) {
+        if (quantidadeItens > LIMITE_ITENS) {
+            throw new IllegalArgumentException("Quantidade excede o limite permitido.");
+        }
+        return TAXA_ENTREGA;
     }
 }
 ```
 
-Esse `equals(Ponto)` não sobrescreve o `equals(Object)` herdado de `Object` — é uma sobrecarga. Coleções como `HashSet` e `ArrayList` chamam `equals(Object)`, então continuam usando a comparação por identidade herdada, e o `Ponto` se comporta de forma inesperada dentro delas. Com `@Override` na linha de cima, o compilador teria recusado o código na hora, apontando que não existe `equals(Ponto)` para sobrescrever.
+O problema que constantes resolvem é o de valores mágicos: números ou textos fixos escritos diretamente no meio da lógica do programa, sem nome nem explicação, como `if (quantidadeItens > 50)`. Um valor assim, espalhado em vários pontos do código, é difícil de entender (o que significa "50" ali, sem contexto?) e ainda mais difícil de manter — se o limite precisar mudar de 50 para 100, seria necessário localizar manualmente cada lugar onde o número "50" foi usado com esse significado específico, correndo o risco real de esquecer algum, já que o número "50" pode aparecer em outros lugares do código com significados completamente diferentes.
 
-Colocando a anotação, a regra passa a trabalhar a seu favor: o compilador confirma que existe mesmo um método com aquela assinatura na hierarquia acima. Se não existir, é erro de compilação, e o problema aparece em segundos, no seu editor, em vez de semanas depois em produção. Desde o Java 6, `@Override` vale também para métodos que implementam uma interface, então pode ser usada nesses casos.
+Substituir esse valor solto por uma constante nomeada (`LIMITE_ITENS`) resolve os dois problemas de uma vez: o nome já documenta o que aquele número representa, sem precisar de comentário adicional, e alterar o valor em um único lugar (a declaração da constante) propaga automaticamente a mudança para todo lugar do código que usa `LIMITE_ITENS`, porque todos consultam a mesma referência compartilhada.
 
-Não há alternativa técnica equivalente: as únicas outras linhas de defesa são o aviso que a IDE mostra e a atenção de quem revisa o código — ambos mais fáceis de ignorar do que um erro de compilação. A recomendação prática é usar `@Override` em todo método que você acredita estar sobrescrevendo, sem exceção.
+Uma analogia: constantes são como os preços fixados em um cardápio impresso — em vez de o garçom decorar e repetir de memória, em cada mesa, o preço de cada prato (arriscando errar ou divergir de mesa para mesa), todos consultam a mesma fonte única, o cardápio, e uma eventual atualização de preço é feita uma única vez, na origem, refletindo automaticamente para qualquer pessoa que consulte o cardápio depois.
 
-O único "quando não usar" é literal: não é possível colocar `@Override` em um método que não sobrescreve nada — um método genuinamente novo da subclasse. Fazer isso provoca justamente o erro de compilação que a anotação existe para gerar. Fora esse caso, não há motivo para omiti-la.
+Um exemplo real de uso são limites de sistema, taxas fixas, mensagens padronizadas, nomes de configuração, ou qualquer valor repetido em múltiplos pontos da lógica de um programa. Uma alternativa mais avançada, fora do escopo deste módulo, é centralizar constantes usadas por várias classes em um arquivo de configuração externo, carregado em tempo de execução — mas o princípio de nomear e centralizar valores fixos é o mesmo. Quando não criar uma constante: para um valor usado uma única vez, em um único lugar do código, sem nenhum risco de ambiguidade sobre seu significado — nesse caso, extrair uma constante pode ser um passo a mais sem ganho real, embora, na dúvida, nomear o valor quase sempre melhore a legibilidade do código.
 
-### Dynamic dispatch
+### Initialization blocks
 
-Dynamic dispatch — despacho dinâmico, também chamado de late binding, ligação tardia ou invocação de método virtual — é o mecanismo pelo qual a JVM decide, no momento da chamada, qual versão de um método sobrescrito deve executar, olhando para o tipo real do objeto e não para o tipo declarado da variável que o referencia. É a engrenagem que faz a sobrescrita valer a pena e o que dá sentido ao polimorfismo do próximo capítulo.
-
-Para entender o que ele resolve, vale imaginar a alternativa: ligação estática, em que a decisão é tomada na compilação, a partir do tipo escrito na declaração da variável. Nesse cenário, uma variável declarada como `Funcionario` sempre chamaria `Funcionario.calcularBonus()`, mesmo que, em tempo de execução, apontasse para um `Gerente`. Sobrescrever métodos seria quase inútil, e para obter comportamento específico por tipo você teria de espalhar verificações `instanceof` seguidas de casts pelo código, um bloco de `if`/`else` para cada operação.
-
-Com dynamic dispatch, isso desaparece. Todo objeto carrega, em tempo de execução, a informação da classe da qual foi instanciado. Quando um método de instância é chamado, a JVM parte dessa classe real e procura a implementação do método ali; se não encontrar, sobe na hierarquia até achar. O tipo da variável serve apenas para o compilador checar que o método existe e é acessível — quem ele chama de fato é definido pelo objeto.
+Um bloco de inicialização (initialization block) é um trecho de código, delimitado apenas por chaves `{ }`, escrito diretamente no corpo de uma classe, fora de qualquer método ou construtor, que é executado automaticamente sempre que um objeto daquela classe é criado — antes do corpo do construtor ser executado. Existem também blocos de inicialização estáticos, marcados com a palavra `static` antes das chaves, que são executados uma única vez, quando a classe é carregada pela primeira vez, antes de qualquer objeto dela ser criado.
 
 ```java
-List<Funcionario> equipe = List.of(
-    new Funcionario(),
-    new Gerente(),
-    new Diretor()
-);
+public class Relatorio {
+    private String cabecalho;
+    static int contadorGlobal;
 
-for (Funcionario f : equipe) {
-    System.out.println(f.calcularBonus());
-    // roda a versão de Funcionario, de Gerente e de Diretor,
-    // nessa ordem — mesmo o tipo da variável sendo Funcionario
-}
-```
-
-O laço trata todos como `Funcionario`, e ainda assim cada elemento responde com o próprio cálculo. Adicionar amanhã uma classe `Estagiario` com o seu `calcularBonus()` não exige tocar nesse laço: o despacho dinâmico já vai chamar a versão certa.
-
-Dois limites importantes. Primeiro, isso vale só para métodos de instância. Campos não têm despacho dinâmico: o campo acessado depende do tipo declarado da referência, como visto no capítulo de `super`. Métodos `static` também são resolvidos pelo tipo declarado, não pelo objeto. Segundo, `super.metodo()` não passa por esse mecanismo — é justamente a forma de chamar deliberadamente a versão da superclasse, ignorando a do objeto.
-
-A "alternativa" ao dynamic dispatch é aquele despacho manual já esboçado acima: as cadeias de `instanceof` com cast, um `switch` sobre o tipo, ou funções e objetos de estratégia passados explicitamente. Versões modernas do Java oferecem pattern matching em `switch`, que torna esse estilo manual mais legível quando ele é mesmo necessário — por exemplo, quando os tipos não estão sob o seu controle ou não formam uma hierarquia. Para código orientado a objetos comum, porém, deixar a JVM despachar é mais simples e mais fácil de estender.
-
-Não há como "desligar" o dynamic dispatch para métodos de instância, mas há situações em que você quer evitar o efeito dele. Uma é chamar, de dentro de um construtor da superclasse, um método que a subclasse sobrescreve: o despacho dinâmico vai executar a versão da subclasse antes de os campos dela terem sido inicializados, expondo valores zerados. A defesa é não chamar métodos sobrescrevíveis em construtores. Outra é quando um método simplesmente não deve variar entre subclasses — nesse caso, marque-o como `final`, e o compilador garante que ninguém quebre essa expectativa.
-
-## Polimorfismo
-
-A sobrescrita e o despacho dinâmico do capítulo anterior mostraram *como* a JVM escolhe, em tempo de execução, qual versão de um método rodar. Este capítulo mostra *para quê* isso serve: o polimorfismo é a capacidade de escrever um trecho de código uma única vez e vê-lo funcionar com qualquer subclasse — inclusive com subclasses que ainda não existem. Para entender o mecanismo é preciso separar duas coisas que costumam ser confundidas: o tipo da variável, que o compilador enxerga, e o tipo do objeto, que a JVM executa. Sobre essa distinção se apoiam o upcasting, a conversão que liga uma coisa à outra, e o princípio de substituição, que diz quando tudo isso é seguro.
-
-### Tipo da variável
-
-O tipo da variável — também chamado de tipo declarado, tipo estático ou *compile-time type* — é o tipo que aparece à esquerda do nome quando a variável é declarada: o `Funcionario` em `Funcionario f = ...`. Ele é fixo, escrito no código-fonte, e é a única informação que o compilador tem sobre aquela referência enquanto verifica o programa. Tudo o que o compilador decide a respeito de `f` — quais métodos podem ser chamados, quais campos existem, se uma atribuição é válida — parte desse tipo, nunca do objeto que `f` vai apontar em tempo de execução.
-
-O problema que essa ideia organiza é o de conciliar segurança e flexibilidade. Se a linguagem exigisse que cada variável fosse declarada exatamente com a classe do objeto instanciado, uma lista que guarda `Gerente`, `Diretor` e `Estagiario` seria impossível de escrever, e um método que aceita "qualquer funcionário" teria de ser reescrito para cada subtipo. Por outro lado, se não houvesse checagem nenhuma, só se descobriria em produção que um método não existe.
-
-O tipo da variável resolve isso funcionando como um contrato mínimo: ao declarar `Funcionario f`, você promete ao compilador que `f` sempre apontará para algo que é, no mínimo, um `Funcionario`, e em troca ele libera o uso de tudo o que `Funcionario` declara — e só isso. A regra prática é declarar a variável pelo tipo mais geral que ainda atende ao que o código precisa fazer.
-
-```java
-Funcionario f = new Gerente();
-
-f.calcularBonus();       // compila: calcularBonus() existe em Funcionario
-f.aprovarFerias(joao);   // NÃO compila: aprovarFerias() só existe em Gerente,
-                         // mesmo o objeto sendo um Gerente
-```
-
-O compilador recusa a segunda linha olhando apenas para `Funcionario`, o tipo de `f`. O objeto por trás é um `Gerente` de fato, mas isso não conta nessa decisão. Vale como analogia um crachá de acesso: o crachá que você carrega (o tipo da variável) determina quais portas o leitor deixa você tentar abrir; quem você é de verdade dentro da empresa (o tipo do objeto) é outra questão, que só importa depois que a porta abre.
-
-A alternativa mais comum é declarar a variável com o tipo concreto — `Gerente g = new Gerente()` —, o que dá acesso a toda a superfície da subclasse sem cast, à custa de amarrar aquele trecho a uma classe específica. Desde o Java 10 há também `var`, que infere o tipo da variável a partir do lado direito: em `var g = new Gerente()`, o tipo da variável passa a ser `Gerente`, não `Funcionario`.
-
-Não force um tipo muito geral quando o código realmente depende, o tempo todo, de recursos específicos da subclasse: se cada uso de `f` exige um cast de volta para `Gerente`, o tipo declarado está mais atrapalhando do que protegendo, e declarar diretamente como `Gerente` é mais honesto.
-
-### Tipo do objeto
-
-O tipo do objeto — também chamado de tipo real, tipo dinâmico ou *runtime type* — é a classe que foi usada no `new` para criar aquele objeto: o `Gerente` em `new Gerente()`. Diferente do tipo da variável, que muda conforme a referência é reatribuída, o tipo do objeto nasce com ele e não muda nunca, por mais que a referência passe por variáveis de tipos diferentes. É esse tipo que a JVM consulta em tempo de execução para decidir qual implementação de um método sobrescrito vai rodar.
-
-Sem essa distinção, a sobrescrita perderia o sentido. Como o capítulo anterior mostrou, se a chamada olhasse apenas para o tipo da variável, `Funcionario f = new Gerente(); f.calcularBonus();` rodaria sempre a versão de `Funcionario` — e redefinir o método na subclasse não teria efeito nenhum justamente quando o objeto é manipulado por uma referência mais geral, que é o caso interessante.
-
-O mecanismo que garante o contrário é o despacho dinâmico já visto. O que vale reter aqui é a divisão de trabalho entre os dois tipos: o tipo da variável garante, em tempo de compilação, que o método existe e é acessível; o tipo do objeto decide qual corpo de método de fato executa.
-
-```java
-Funcionario f = new Gerente();
-
-f.calcularBonus();                 // roda Gerente.calcularBonus() — decidido pelo tipo do objeto
-System.out.println(f.getClass()); // class Gerente
-```
-
-Retomando a analogia do crachá: se o tipo da variável é o crachá, o tipo do objeto é a pessoa que o está usando. O crachá diz "Funcionario" e por isso libera certas portas, mas depois que a porta abre quem faz o trabalho é a pessoa real, com a competência que ela tem — um gerente age como gerente mesmo estando com um crachá genérico. O método `getClass()`, herdado de `Object`, é o que revela essa identidade em código.
-
-Um contraponto importante: nem tudo segue o tipo do objeto. Campos acessados pelo nome e métodos `static` são resolvidos pelo tipo da variável, na compilação. Assim, se `Funcionario` e `Gerente` declaram cada um um campo `codigo`, a expressão `f.codigo` lê o campo de `Funcionario`, porque `f` é declarada como `Funcionario` — mesmo o objeto sendo `Gerente`. Só chamadas a métodos de instância passam pelo despacho dinâmico.
-
-A forma de inspecionar o tipo do objeto de propósito é o `instanceof`, com ou sem pattern matching, assunto do próximo capítulo. Convém, porém, não construir a lógica do programa em torno do tipo exato do objeto: escrever `if (f.getClass() == Gerente.class)` para tratar cada classe à mão desfaz o ganho do polimorfismo e cria um ponto que precisa ser editado a cada nova subclasse. Usar `getClass()` para comparação estrita dentro de `equals`, em particular, torna a igualdade incompatível com qualquer subclasse — um efeito quase sempre indesejado.
-
-### Upcasting
-
-Upcasting é a atribuição de uma referência de um tipo mais específico a uma variável de um tipo mais geral na mesma linha de herança — uma subclasse sendo vista como sua superclasse, ou uma classe sendo vista como uma interface que ela implementa. É uma conversão que o Java faz sozinho, sem exigir sintaxe de cast e sem nenhum risco de falhar em tempo de execução, porque a relação "todo `Gerente` é um `Funcionario`" já foi garantida pelo `extends`. O nome vem da imagem da hierarquia desenhada com a superclasse no topo: apontar a referência "para cima".
-
-O que o upcasting viabiliza é o código genérico. Sem ele, cada estrutura e cada método teria de falar de um tipo concreto: uma lista de `Gerente`, outra de `Diretor`, um método `pagar(Gerente)` e outro `pagar(Diretor)` com corpos praticamente idênticos. Toda vez que surgisse uma nova subclasse, seria preciso criar mais uma variação de tudo.
-
-Com o upcasting, você escreve uma vez contra o tipo geral e passa qualquer subtipo:
-
-```java
-void processarFolha(List<Funcionario> equipe) {
-    for (Funcionario f : equipe) {
-        System.out.println(f.calcularBonus());
+    static {
+        contadorGlobal = 100; // executado uma única vez, ao carregar a classe
+        System.out.println("Classe Relatorio carregada.");
     }
-}
 
-List<Funcionario> equipe = new ArrayList<>();
-equipe.add(new Gerente());     // upcast implícito Gerente     -> Funcionario
-equipe.add(new Estagiario());  // upcast implícito Estagiario  -> Funcionario
-processarFolha(equipe);
-```
+    {
+        cabecalho = "Relatório padrão"; // executado toda vez que um objeto é criado
+    }
 
-Cada `add` faz um upcast: o objeto continua sendo um `Gerente` ou um `Estagiario` — o `new` não muda —, apenas passa a ser referenciado por uma variável de tipo `Funcionario`. E, graças ao despacho dinâmico, `f.calcularBonus()` ainda executa a versão de cada subclasse; o upcast estreita o que o compilador deixa você chamar, não o comportamento do objeto. É como apresentar um cardiologista simplesmente como "médico": ele não deixou de ser cardiologista, você só escolheu um rótulo mais amplo, que serve em mais situações.
-
-A alternativa ao upcasting para escrever código reutilizável é declarar as variáveis e parâmetros já com o tipo de uma interface — `List` em vez de `ArrayList`, `Comparable` em vez da classe concreta —, o que é a mesma ideia levada ao limite: programe para o tipo mais abstrato que resolve. Generics com *bounded types* (`<T extends Funcionario>`) atacam o mesmo problema quando é preciso, além de tratar os elementos de forma uniforme, preservar o tipo específico de cada um.
-
-O upcasting deixa de ser suficiente quando, depois de generalizar, você precisa de volta um recurso que só existe na subclasse — chamar `aprovarFerias()` em algo que está guardado como `Funcionario`. Aí é preciso o caminho inverso, o downcasting, que exige cast explícito e verificação com `instanceof`, tema do próximo capítulo.
-
-### Substituição
-
-O princípio da substituição diz que, em qualquer ponto do programa onde se espera um objeto de um determinado tipo, deve ser possível usar um objeto de qualquer subtipo dele sem que o programa deixe de funcionar corretamente. Formulado por Barbara Liskov, é conhecido como Princípio da Substituição de Liskov (LSP) e corresponde à letra "L" do conjunto SOLID. Se os conceitos anteriores apresentaram os mecanismos do polimorfismo — upcasting e despacho dinâmico —, a substituição é a condição que torna esses mecanismos confiáveis: ela define quando uma hierarquia de herança é sólida.
-
-O problema aparece porque o compilador verifica pouca coisa. Ele garante que a subclasse tem os métodos com as assinaturas certas, mas não tem como saber se eles *se comportam* como o código cliente espera. Um trecho que recebe um `Funcionario` e chama `calcularBonus()` conta com um número de volta; se alguma subclasse resolve lançar uma exceção nesse método, ou devolver um valor negativo, ou alterar o estado do objeto de um jeito que a superclasse nunca faria, todo código escrito contra `Funcionario` passa a ter um comportamento imprevisível que, ainda assim, compila sem reclamação.
-
-Respeitar a substituição significa que a subclasse, ao sobrescrever, não pode exigir mais do que a superclasse exigia (não fortalecer pré-condições), não pode entregar menos do que ela prometia (não enfraquecer pós-condições), deve preservar as invariantes da classe-base e não deve lançar exceções novas onde a original não lançava. Em resumo: a subclasse pode fazer diferente, mas não pode surpreender quem só conhece a superclasse.
-
-O exemplo clássico da violação é o do quadrado e do retângulo:
-
-```java
-class Retangulo {
-    protected int largura, altura;
-    void setLargura(int l) { this.largura = l; }
-    void setAltura(int a)  { this.altura = a; }
-    int area() { return largura * altura; }
-}
-
-class Quadrado extends Retangulo {
-    @Override void setLargura(int l) { this.largura = this.altura = l; }
-    @Override void setAltura(int a)  { this.largura = this.altura = a; }
-}
-```
-
-Matematicamente todo quadrado é um retângulo, mas o código que depende de `Retangulo` assume que mexer na largura não altera a altura. Um método que faça `r.setLargura(5); r.setAltura(4);` e espere `r.area() == 20` funciona com `Retangulo` e falha com `Quadrado`, que devolve 16. A herança é válida para o compilador e errada para o programa.
-
-Quando a substituição não se sustenta, a saída é não usar herança: modelar por composição (o `Quadrado` tem um lado e expõe só `area()`, sem se dizer um `Retangulo`), ou dividir o contrato em interfaces menores, de modo que nenhuma implementação seja obrigada a suportar operações que não fazem sentido para ela. Às vezes vale até inverter a direção da herança, porque o subtipo seguro é o contrário do que a intuição sugere.
-
-Não vale a pena aplicar o princípio como perfeccionismo teórico sobre código que ninguém trata de forma polimórfica: se uma classe nunca é usada através da superclasse, a violação não tem como se manifestar. Mas, no momento em que o polimorfismo entra — coleções de tipo geral, parâmetros de superclasse, frameworks que chamam o seu código —, a substituição deixa de ser opcional.
-
-## Casting de referências
-
-O capítulo de polimorfismo mostrou o caminho de ida: o upcasting trata uma subclasse pelo tipo da superclasse e permite escrever código genérico. Este capítulo trata do caminho de volta. Há situações em que o código genérico não basta — é preciso alcançar um campo ou um método que só existe no subtipo específico. Para isso a linguagem oferece três peças que trabalham juntas: o downcasting, a conversão de uma referência geral para um tipo mais específico da mesma hierarquia; o `instanceof`, o operador que verifica o tipo real do objeto antes da conversão; e a noção de segurança de tipos, que explica por que essa verificação não é dispensável e o que a JVM faz quando ela é ignorada.
-
-### Downcasting
-
-Downcasting é a conversão explícita de uma referência de um tipo mais geral para um tipo mais específico dentro da mesma hierarquia de herança — o oposto do upcasting. Onde `Funcionario f = new Gerente()` sobe a referência para o tipo geral sem qualquer esforço de sintaxe, `Gerente g = (Gerente) f` desce de volta para o tipo específico, e isso exige o cast entre parênteses. A diferença de tratamento não é arbitrária: o upcast é sempre seguro, porque todo `Gerente` é um `Funcionario`; o downcast pode falhar, porque nem todo `Funcionario` é um `Gerente`.
-
-O problema que ele resolve nasce justamente do upcasting. Depois de guardar objetos numa `List<Funcionario>` ou de recebê-los num parâmetro do tipo `Funcionario`, o compilador só libera o que `Funcionario` declara. Se em algum ponto você precisa chamar `aprovarFerias()`, um método que só `Gerente` possui, não há como pedir isso a uma referência de tipo `Funcionario` — o compilador recusa, mesmo que o objeto por trás seja, de fato, um `Gerente`. Sem uma forma de reconverter, o recurso específico ficaria fora de alcance.
-
-O downcast reabre essa porta. Ao escrever `(Gerente) f`, você afirma ao compilador que aquela referência aponta para um `Gerente`, e ele passa a liberar toda a superfície de `Gerente` sobre o resultado. Em tempo de execução, a JVM confere se a afirmação é verdadeira: se o objeto for mesmo um `Gerente`, a conversão passa; se não for, o programa lança `ClassCastException` na própria linha do cast.
-
-```java
-Funcionario f = buscarFuncionario();   // tipo da variável: Funcionario
-// f.aprovarFerias(joao);              // não compila: método não existe em Funcionario
-
-Gerente g = (Gerente) f;               // downcast explícito
-g.aprovarFerias(joao);                 // agora o compilador libera o método de Gerente
-```
-
-Vale a analogia do crachá usada no capítulo anterior: se apresentar um cardiologista apenas como "médico" é o upcast, o downcast é voltar a tratá-lo como cardiologista para pedir a leitura de um eletrocardiograma. Mas a parte técnica não termina na imagem: essa reconversão só é legítima se a pessoa for mesmo cardiologista — caso contrário, o pedido não tem sentido e o sistema reage com erro em vez de obedecer.
-
-A alternativa preferível ao downcast é não precisar dele: se o comportamento específico puder virar um método sobrescrito na hierarquia, o despacho dinâmico resolve sem cast nenhum. Quando os tipos vêm de fora do seu controle, o pattern matching com `instanceof` e o `switch` sobre tipos organizam melhor a conversão. Separar as coleções por tipo desde a origem também elimina a necessidade.
-
-Evite downcasting como rotina. Se um trecho faz upcast e, poucas linhas depois, o downcast de volta ao mesmo tipo, o tipo geral não era o adequado ali. E nunca faça o cast sem ter certeza do tipo — seja porque acabou de criar o objeto, seja porque verificou antes com `instanceof`, assunto da próxima seção.
-
-### `instanceof`
-
-`instanceof` é um operador que devolve um valor booleano indicando se o objeto referenciado por uma variável é instância de um determinado tipo — ou de algum subtipo dele. A expressão `f instanceof Gerente` resulta em `true` quando o objeto por trás de `f` foi criado como `Gerente` ou como uma subclasse de `Gerente`, e `false` em qualquer outro caso, inclusive quando `f` é `null`. É a ferramenta que permite inspecionar o tipo real do objeto — aquele fixado no `new` — em vez de confiar apenas no tipo declarado da variável.
-
-Sem essa verificação, o downcasting seria um salto no escuro. Escrever `(Gerente) f` quando `f` aponta para um `Estagiario` compila normalmente, mas quebra em execução com `ClassCastException`. Numa coleção que mistura vários subtipos de `Funcionario`, não há como saber de antemão qual é qual, e converter tudo às cegas transformaria o laço numa sequência de exceções.
-
-`instanceof` resolve isso protegendo o cast: você só converte depois de confirmar o tipo. Desde o Java 16, o operador ganhou uma forma mais enxuta, o pattern matching, que une o teste, o cast e a declaração da variável num gesto só. Em `if (f instanceof Gerente g)`, se o teste passa, a variável `g` já nasce com o tipo `Gerente` e o valor convertido, dispensando a linha `Gerente g = (Gerente) f` logo abaixo. O alcance de `g` acompanha o fluxo: ela existe onde o compilador consegue garantir que o teste foi verdadeiro.
-
-```java
-for (Funcionario f : equipe) {
-    if (f instanceof Gerente g) {   // testa e, se passar, entrega g já convertido
-        g.aprovarFerias(joao);
-    } else {
-        System.out.println(f.getNome() + " não aprova férias");
+    Relatorio() {
+        System.out.println("Construtor executado, cabecalho já é: " + cabecalho);
     }
 }
 ```
 
-O laço trata a lista inteira como `Funcionario` e, para cada elemento, decide em tempo de execução se aquele objeto merece o tratamento de `Gerente`. Uma analogia: é a portaria conferindo, um a um, quem tem credencial de gerente antes de liberar a entrada na sala de reunião — quem não tem segue outro caminho, sem que a fila trave. Fechada a checagem, o código volta a ser polimórfico normal.
+Quando uma classe tem dois ou três construtores diferentes, mas todos precisam executar a mesma preparação inicial antes de suas particularidades, repetir esse código idêntico em cada construtor é exatamente o tipo de duplicação que blocos de inicialização evitam: um bloco de instância executa essa parte comum automaticamente, antes de qualquer construtor. Já o bloco `static` resolve um problema análogo, mas para preparar algo relacionado à classe como um todo, uma única vez, independentemente de quantos objetos venham a ser criados depois — útil, por exemplo, para calcular um valor inicial complexo para um campo `static`, que não caberia em uma simples atribuição direta na linha de declaração.
 
-Como alternativa, `getClass() == Gerente.class` também compara tipos, mas de forma estrita: rejeita subclasses de `Gerente`, o que quase nunca é o desejado. E, quando há muitos tipos a distinguir, o `switch` com pattern matching fica mais legível do que uma escada de `instanceof`.
+Uma analogia: um bloco de inicialização de instância é como uma checagem de segurança padrão que todo passageiro passa antes de embarcar, independentemente de qual portão de embarque (construtor) ele usou — a checagem acontece sempre, de forma idêntica, antes de qualquer procedimento específico daquele portão. Já um bloco `static` é como a preparação única do próprio aeroporto antes de abrir para o primeiro voo do dia, feita uma vez só, não repetida a cada passageiro.
 
-Justamente essa escada é o sinal de "quando não usar": se o código traz uma sequência longa de `if (x instanceof A) ... else if (x instanceof B) ...` decidindo comportamento por tipo, o problema provavelmente pede um método sobrescrito na hierarquia, deixando o despacho dinâmico fazer a seleção. `instanceof` rende melhor nos casos pontuais — um único subtipo que precisa de tratamento extra — e não como substituto do polimorfismo.
+Um exemplo real de uso é inicializar estruturas de dados complexas em campos `static` (como preencher um mapa de valores fixos) logo quando a classe é carregada, ou garantir que todo objeto, não importa qual construtor use, comece com uma preparação básica comum. Uma alternativa amplamente preferida na prática é simplesmente colocar essa lógica comum diretamente dentro de um construtor principal e fazer os demais construtores chamá-lo (usando `this(...)`, técnica de encadeamento de construtores), o que costuma ser mais claro de ler do que um bloco solto no meio da classe — por isso blocos de inicialização, embora válidos e ocasionalmente úteis (principalmente os `static`, para preparar dados de classe), são menos comuns no dia a dia do que construtores bem escritos. Quando não usá-los: quando a mesma lógica pode ser expressa de forma mais legível dentro de um construtor comum, o que costuma ser o caso na maioria das classes simples.
 
-### Segurança de tipos
+### Ordem de inicialização
 
-Segurança de tipos (em inglês, *type safety*) é a garantia de que uma operação só será executada sobre um objeto que de fato a suporta. Em Java essa garantia se apoia em duas camadas: o compilador, que usa o tipo declarado das variáveis para barrar chamadas a métodos e acessos a campos que o tipo não possui; e a JVM, que, nas conversões de referência, confere em tempo de execução se o objeto é mesmo do tipo pretendido. O casting de referências é o ponto em que essas duas camadas se encontram, e a `ClassCastException` é a rede que a JVM estende quando a checagem do compilador não foi suficiente.
+Este último conceito do módulo amarra, em sequência clara, tudo que foi visto sobre `static`, `final` e blocos de inicialização: a ordem exata em que Java prepara uma classe e cria um objeto dela, algo que passa despercebido na maior parte do tempo, mas que se torna importante para entender exatamente quando cada parte de uma classe está pronta para uso.
 
-O risco que essa garantia neutraliza fica claro na comparação com linguagens de mais baixo nível, onde um cast mal feito entre tipos é aceito sem conferência: o programa passa a interpretar aquela região de memória como se fosse outro tipo, e o resultado é comportamento indefinido — leitura de lixo, corrupção de dados, falhas difíceis de reproduzir. Em Java isso não ocorre. O pior caso de um downcast errado é uma exceção imediata, clara, apontando a linha exata e os dois tipos envolvidos.
+Quando uma classe é usada pela primeira vez em um programa (seja para criar um objeto, seja para acessar um membro `static`), Java primeiro carrega a classe e executa, nessa ordem: (1) inicialização dos campos `static` na ordem em que aparecem no código, e (2) os blocos de inicialização `static`, também na ordem em que aparecem — tudo isso acontece uma única vez, por classe, não importa quantos objetos venham a ser criados depois.
 
-Na prática, manter a segurança de tipos ao converter referências significa combinar `instanceof` e downcast — ou usar o pattern matching, que já faz as duas coisas de forma integrada. O compilador ajuda antes mesmo da execução: um cast entre tipos sem nenhuma relação de herança nem compila (`(String) umFuncionario` é recusado de imediato). O que sobra para a JVM são os casos em que a conversão é plausível pela hierarquia, mas pode não corresponder ao objeto real.
+Só então, ao criar cada novo objeto com `new`, Java executa, nessa ordem: (1) inicialização dos campos de instância na ordem em que aparecem no código, (2) os blocos de inicialização de instância, também na ordem em que aparecem, e por fim (3) o corpo do construtor.
 
 ```java
-Funcionario f = new Estagiario();
-Gerente g = (Gerente) f;   // compila — Gerente é subtipo de Funcionario —,
-                           // mas lança ClassCastException em execução
+public class Demonstracao {
+    static int a = inicializar("campo static a");
+    static { System.out.println("bloco static"); }
+
+    int b = inicializar("campo de instância b");
+    { System.out.println("bloco de instância"); }
+
+    Demonstracao() {
+        System.out.println("construtor");
+    }
+
+    static int inicializar(String msg) {
+        System.out.println(msg);
+        return 0;
+    }
+}
+// new Demonstracao() imprime, nessa ordem:
+// campo static a
+// bloco static
+// campo de instância b
+// bloco de instância
+// construtor
 ```
 
-Trocar esse cast direto por `if (f instanceof Gerente g) { ... }` faz a conversão acontecer só quando é segura, e o ramo `else` cuida do resto. É a diferença entre o eletricista testar o fio antes de encostar a mão e simplesmente confiar que está desligado.
+Sem entender essa ordem, é fácil escrever código que depende, sem perceber, de um campo que ainda não foi inicializado no momento em que é usado — por exemplo, um bloco de inicialização de instância que tenta usar um campo declarado logo depois dele no código, e que portanto ainda não recebeu valor algum, porque a inicialização segue estritamente a ordem em que os elementos aparecem no arquivo, de cima para baixo.
 
-A alternativa mais forte é empurrar a verificação para o tempo de compilação com generics: uma `List<Gerente>` nunca deixa entrar um `Estagiario`, então ler dela dispensa qualquer cast e qualquer `instanceof`. Quando o conjunto de subtipos é fechado e conhecido, classes `sealed` combinadas com `switch` exaustivo dão garantia equivalente, também verificada pelo compilador. Ambos reduzem a superfície em que uma `ClassCastException` poderia surgir.
+Uma analogia final para o módulo inteiro: pensar nessa ordem como a preparação de um teatro antes de uma peça. Primeiro, o prédio e a infraestrutura são preparados uma única vez, antes de qualquer sessão (a parte `static` da classe, carregada uma vez só); depois, para cada sessão individual (cada objeto criado), o palco é montado (campos e blocos de instância) e só então a peça começa de fato (o construtor), com tudo já preparado ao seu redor.
 
-Não trate a segurança de tipos como algo a contornar com `try/catch` de `ClassCastException` no fluxo normal: capturar essa exceção para seguir em frente esconde um erro de modelagem em vez de corrigi-lo. E, se você se pega verificando tipos o tempo todo, o sinal é de que as variáveis foram declaradas gerais demais — a resposta costuma ser um tipo mais específico ou generics, não mais verificações.
-
----
+Compreender essa ordem completa o que este módulo construiu: partindo de `Object`, a base comum de todo objeto, passando por igualdade e hash, que definem como objetos se comparam entre si, até `static` e `final`, que definem onde um dado mora e se pode mudar — a ordem de inicialização é o fio que amarra tudo isso no momento exato em que um objeto, ou uma classe, passa a existir e estar pronto para uso, servindo de base para os módulos seguintes deste livro.
 
 # Módulo 2 — Abstração e interfaces
 
