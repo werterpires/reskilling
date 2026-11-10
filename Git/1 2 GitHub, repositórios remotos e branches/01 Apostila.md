@@ -23,7 +23,7 @@ Neste tópico, você responderá a essas perguntas com o projeto **Gestão de Bi
 - integrar branches com `git merge`;
 - reconhecer e resolver um conflito.
 
-> Pull Requests, Code Review, Issues e Maven ficam para o próximo tópico.
+> Comparar versões e desfazer alterações (`reset`, `revert`, `rebase` e outros) é o assunto do próximo tópico. Pull Requests, Code Review e Maven ficam para o Tópico 4.
 
 ---
 
@@ -89,7 +89,7 @@ O painel não faz nada que o Git não faça por comando. Ele facilita a leitura 
 
 ### Extensões complementares
 
-Extensões como **Git Graph**, que desenha o histórico e as branches, e **GitHub Pull Requests**, usada no próximo tópico, são complementares. A integração básica com o Git não depende delas.
+Extensões como **Git Graph**, que desenha o histórico e as branches, e **GitHub Pull Requests**, que pode ajudar no Tópico 4, são complementares. A integração básica com o Git não depende delas.
 
 ---
 
@@ -334,7 +334,7 @@ Neste curso, combine por *merge*. Configure uma vez:
 git config --global pull.rebase false
 ```
 
-Estratégias alternativas de sincronização, como o *rebase*, ficam fora deste tópico.
+Estratégias alternativas de sincronização, como o *rebase*, ficam para o próximo tópico.
 
 ---
 
@@ -707,4 +707,4 @@ Você separou Git e GitHub, conectou o projeto com `git remote add` e publicou a
 
 A experiência do mainframe continua útil. A preocupação com proteger o que está em produção, isolar uma mudança até testá-la e combinar alterações concorrentes é a mesma. O Git oferece outros mecanismos para a mesma preocupação.
 
-Falta um processo. Até agora, qualquer pessoa com acesso poderia integrar na `main` sem que ninguém olhasse o trabalho antes. No próximo tópico, você usará **Pull Requests**, **Issues** e **Code Review** para organizar essa colaboração e conhecerá o **Maven** para estruturar projetos Java em equipe.
+Até agora, porém, o histórico só cresceu: você ainda não sabe corrigir um commit, desfazer um erro já publicado ou atualizar uma branch sem um commit de merge. No próximo tópico, você aprenderá a **comparar** versões com precisão, **desfazer** alterações em cada nível e **reorganizar** commits com `rebase`. Depois, no Tópico 4, usará **Pull Requests** e **Code Review** para organizar a colaboração e conhecerá o **Maven** para estruturar projetos Java em equipe.

@@ -1,7 +1,7 @@
-# Aula 3 — Git colaborativo, Maven e desenvolvimento de uma aplicação bancária
+# Aula 4 — Git colaborativo, Maven e desenvolvimento de uma aplicação bancária
 
 - Módulo: Git Básico → Intermediário + Maven
-- Aula: 3 de 4
+- Aula: 4 de 4
 - Tema: Desenvolvimento colaborativo com GitHub, Pull Requests, Code Review e introdução ao Maven
 - Formato: Apresentação breve + atividade prática em trios
 - Duração sugerida: 2h30 a 3h
@@ -44,7 +44,8 @@ Conceitos para explicar:
 - Branch: ambiente isolado para desenvolver uma funcionalidade.
 - Pull Request: solicitação para incorporar alterações de uma branch a outra.
 - Code Review: análise do código por outro integrante antes da integração.
-- Issue: registro de uma tarefa, melhoria ou problema a ser resolvido.
+- Fetch, pull e push em equipe: acompanhar o trabalho dos colegas, atualizar a main e publicar a própria branch.
+- Merge local: integrar uma branch pelo terminal e publicar o resultado com push.
 
 Destaque que o Pull Request não é apenas um botão para juntar códigos. É uma etapa de comunicação e revisão do trabalho.
 
@@ -136,7 +137,7 @@ mvn compile
 
 Caso o Maven não esteja instalado ou configurado, demonstre a instalação e a configuração do PATH. Se a infraestrutura da turma já disponibilizar Maven, utilize o ambiente existente.
 
-Explique que `mvn compile` executa a etapa de compilação do projeto. Não é necessário aprofundar o ciclo de vida nesta aula; isso será trabalhado na aula 4.
+Explique que `mvn compile` executa a etapa de compilação do projeto. Não é necessário aprofundar o ciclo de vida nesta aula; isso fica para uma etapa posterior do curso.
 
 ## 4. Apresentação do desafio: Sistema Bancário
 
@@ -344,16 +345,6 @@ Oriente os participantes a:
 - Abrir o projeto no VS Code.
 - Conferir a estrutura Maven.
 - Verificar se o projeto compila.
-- Criar uma Issue para cada responsabilidade.
-
-Exemplo de Issues:
-
-- Criar classe Cliente.
-- Criar classe Conta.
-- Implementar menu e controle da aplicação.
-- Implementar operações de transferência.
-
-Explique que as Issues ajudam a registrar o que precisa ser feito e quem está responsável por cada atividade.
 
 Cada integrante deverá trabalhar em sua própria branch.
 
@@ -368,6 +359,29 @@ git switch -c feature/aplicacao-banco
 Os nomes são apenas exemplos. Cada integrante deverá criar sua branch a partir da versão atualizada de main.
 
 Oriente a turma a não trabalhar diretamente na branch main.
+
+### 7.1. O ciclo de sincronização
+
+Apresente a rotina de cada integrante:
+
+| Momento | Comando |
+|---|---|
+| antes de começar algo novo | `git switch main` e `git pull` |
+| durante o trabalho | `git push` da própria branch |
+| a qualquer momento | `git fetch`, para ver o que os colegas enviaram |
+
+Demonstre como examinar a branch de um colega sem sair da sua, usando as ferramentas da aula 3:
+
+```bash
+git fetch
+git branch -a
+git log --oneline main..origin/feature/conta
+git diff --stat main...origin/feature/conta
+```
+
+**Ponto importante:** publicar não é integrar. Quando um colega diz "já subi", a branch dele está no GitHub, mas o trabalho só chega à main quando alguém o integra.
+
+**Regra de ouro em equipe:** a main e as branches dos colegas nunca recebem `reset`, `rebase` ou `push --force`. Cada integrante só reorganiza a própria branch antes de pedir revisão.
 
 ## 8. Desenvolvimento prático — primeira etapa
 
@@ -413,7 +427,7 @@ Cada participante deverá:
 - Abrir um Pull Request para main.
 - Informar o objetivo da alteração.
 - Descrever o que foi implementado.
-- Relacionar a Issue correspondente, se aplicável.
+- Indicar como testar.
 
 Exemplo de título:
 
@@ -429,11 +443,12 @@ Exemplo de descrição:
 - Implementado saque.
 - Implementada consulta de saldo.
 
-## Issue relacionada
-Closes #2
+## Como testar
+- mvn compile termina em BUILD SUCCESS.
+- Saque acima do saldo é recusado.
 ```
 
-Explique o significado de relacionar um Pull Request a uma Issue. No GitHub, expressões como Closes #2 podem encerrar automaticamente a Issue quando o Pull Request for integrado.
+Explique que a seção de teste orienta o revisor e evita uma aprovação feita só pela leitura do código.
 
 ### 9.1. Code Review
 
@@ -460,6 +475,29 @@ O Pull Request poderá então ser integrado à main.
 **Regra para o exercício:** cada integrante deverá revisar pelo menos um Pull Request de outro integrante. Ninguém deverá aprovar automaticamente o próprio trabalho.
 
 ## 10. Integração da aplicação
+
+### 10.1. Integrar pelo botão ou por merge local
+
+Mostre as duas formas de integrar um Pull Request aprovado. A primeira é o botão **Merge pull request**, com **Create a merge commit**. A segunda é o merge local:
+
+```bash
+git switch main
+git pull
+git merge --no-ff feature/aplicacao-banco -m "Integra feature/aplicacao-banco"
+mvn compile
+git push
+```
+
+Explique:
+
+- o `--no-ff` cria o commit de merge, como o botão;
+- o `mvn compile` antes do `push` confere o conjunto integrado antes de publicá-lo;
+- o GitHub marca o Pull Request como Merged sozinho, quando os commits chegam à main;
+- se o `push` for recusado, alguém integrou algo antes: `git pull`, compilar de novo e repetir o `push`, nunca forçar.
+
+Mostre também a direção contrária, usada pelo Integrante 3 antes da revisão final: trazer a main para a própria branch com `git merge main`, para testar a aplicação com as classes dos colegas.
+
+### 10.2. Verificar o conjunto
 
 Depois que as três classes forem integradas, o trio deverá atualizar sua branch main e verificar se o projeto compila.
 
@@ -541,16 +579,18 @@ Finalize perguntando:
 - Por que não devemos desenvolver diretamente na main?
 - Qual é a função de um Pull Request?
 - O que acontece durante um Code Review?
-- Para que serve uma Issue?
+- Qual a diferença entre `git fetch` e `git pull` quando várias pessoas usam o mesmo repositório?
+- Por que publicar uma branch não é o mesmo que integrá-la?
+- Como integrar um Pull Request com merge local?
 - Qual é a função do pom.xml?
 - Por que o Maven estabelece uma estrutura padrão de diretórios?
 - Por que uma aplicação pode compilar individualmente e apresentar problemas depois da integração?
 
 Retome a ideia principal: desenvolver software em equipe exige mais do que escrever código. É necessário organizar responsabilidades, estabelecer contratos, comunicar mudanças, revisar implementações e integrar o trabalho de maneira controlada.
 
-## Transição para a aula 4
+## Próximos passos depois do módulo
 
-Na próxima aula, o foco será aprofundar o Maven.
+Na continuação do curso, o foco será aprofundar o Maven.
 
 A turma utilizará o mesmo projeto para trabalhar:
 
@@ -579,4 +619,4 @@ O ideal é estabelecer três momentos de integração:
 
 Isso permite observar um problema muito comum em equipes: o desenvolvedor A implementa um método chamado sacar, enquanto o desenvolvedor B espera encontrar um método chamado realizarSaque. O código de ambos pode estar correto isoladamente, mas a integração falha.
 
-Também recomendo que você forneça aos trios o pom.xml e a estrutura inicial do projeto já preparados. A aula 3 tem bastante conteúdo; gastar tempo excessivo com configuração inicial reduziria o tempo de desenvolvimento colaborativo. O foco deve ser GitHub, revisão e integração.
+Também recomendo que você forneça aos trios o pom.xml e a estrutura inicial do projeto já preparados. A aula 4 tem bastante conteúdo; gastar tempo excessivo com configuração inicial reduziria o tempo de desenvolvimento colaborativo. O foco deve ser GitHub, revisão e integração.

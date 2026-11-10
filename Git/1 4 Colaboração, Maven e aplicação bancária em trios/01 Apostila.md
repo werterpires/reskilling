@@ -1,16 +1,16 @@
-# Tópico 3 — Trabalhar em equipe com Pull Requests e começar com Maven
+# Tópico 4 — Trabalhar em equipe com Pull Requests e começar com Maven
 
 ## Do seu repositório para o repositório da equipe
 
-Nos tópicos anteriores, você aprendeu a registrar o histórico de um projeto com Git, publicá-lo no GitHub, criar branches, integrar alterações com `merge` e resolver conflitos. Até aqui, porém, o repositório tinha basicamente uma pessoa decidindo o que entrava nele.
+Nos tópicos anteriores, você aprendeu a registrar o histórico de um projeto com Git, publicá-lo no GitHub, criar branches, integrar alterações com `merge` e resolver conflitos. No Tópico 3, aprendeu também a comparar versões, desfazer alterações e reorganizar commits. Até aqui, porém, o repositório tinha basicamente uma pessoa decidindo o que entrava nele.
 
 Em uma equipe real, essa situação muda. Várias pessoas alteram o mesmo projeto ao mesmo tempo, e surgem perguntas que um repositório pessoal não obriga a responder:
 
 - quem pode enviar alterações para o repositório?
 - como duas pessoas trabalham sem sobrescrever o trabalho uma da outra?
 - como combinar antes de programar para que as partes se encaixem depois?
+- como acompanhar o que os colegas enviaram sem misturar com o próprio trabalho?
 - como outra pessoa examina uma alteração antes de ela chegar à `main`?
-- como registrar o que precisa ser feito e quem está fazendo?
 
 Neste tópico, usaremos a aplicação de **Gestão de Biblioteca** como exemplo. Imagine um trio que precisa construir uma versão em console desse sistema, com as classes `Livro`, `Usuario` e `AplicacaoBiblioteca`. Cada pessoa assume uma classe. O desafio não é a quantidade de código, mas a coordenação.
 
@@ -20,11 +20,11 @@ Você fará, em ordem:
 
 - dar acesso ao repositório às pessoas da equipe;
 - combinar contratos entre as classes antes de programar;
-- registrar tarefas como Issues;
+- manter a sua cópia em dia com `fetch`, `pull` e `push`;
 - trabalhar em uma branch por responsabilidade;
-- abrir Pull Requests ligados às Issues;
+- abrir Pull Requests;
 - revisar o código de outra pessoa;
-- integrar na `main` e verificar o conjunto;
+- integrar na `main`, pelo GitHub ou com um merge local, e verificar o conjunto;
 - conhecer a estrutura Maven, o `pom.xml` e o comando `mvn compile`.
 
 Sua experiência em COBOL ajuda bastante aqui. Quem já trabalhou em sistemas corporativos conhece a importância de combinar layouts, controlar mudanças e revisar antes de colocar em produção. O que muda é o mecanismo: no ecossistema Git, boa parte desse processo acontece em branches, Pull Requests e revisões feitas no GitHub.
@@ -147,7 +147,7 @@ Esse esqueleto também resolve um problema de dependência. `AplicacaoBiblioteca
 
 ### Mudou o contrato? Avise antes
 
-O contrato é um acordo. Se alguém concluir que `emprestar` precisa de um parâmetro novo, a mudança afeta as outras pessoas. A regra é comunicar primeiro e alterar depois, de preferência em uma Issue ou Pull Request pequeno, para que todos vejam.
+O contrato é um acordo. Se alguém concluir que `emprestar` precisa de um parâmetro novo, a mudança afeta as outras pessoas. A regra é comunicar primeiro e alterar depois, de preferência num Pull Request pequeno, para que todos vejam.
 
 ### Ponte com COBOL
 
@@ -157,38 +157,63 @@ O contrato de classes cumpre uma intenção parecida: fixar o formato da convers
 
 ---
 
-## 3. Issues: registrar o que precisa ser feito
+## 3. O ciclo de sincronização em equipe
 
-Uma **Issue** é um registro de tarefa, melhoria ou problema dentro do repositório. Ela tem título, descrição, responsáveis e etiquetas (*labels*), além de um número, como `#3`.
+No Tópico 2, você sincronizou o repositório com uma única pessoa do outro lado: você mesmo, editando pelo navegador. Em equipe, o GitHub recebe alterações de várias pessoas ao longo do dia, e três comandos passam a fazer parte da rotina.
 
-Para a biblioteca do trio, bons exemplos de Issues são:
-
-| Número | Título | Responsável |
+| Momento | Comando | Para quê |
 |---|---|---|
-| `#1` | Criar a classe `Usuario` | Integrante 1 |
-| `#2` | Criar a classe `Livro` com regras de empréstimo | Integrante 2 |
-| `#3` | Criar a `AplicacaoBiblioteca` com busca e empréstimo | Integrante 3 |
+| antes de começar algo novo | `git switch main` e `git pull` | partir da versão mais recente da `main` |
+| durante o trabalho | `git push` | publicar a sua branch, como cópia de segurança e para outros verem |
+| a qualquer momento | `git fetch` | saber o que os colegas enviaram, sem mexer no seu trabalho |
 
-Uma boa Issue responde:
+### Ver o trabalho dos colegas sem sair da sua branch
 
-- o que deve ser feito;
-- como saber que está pronto;
-- quem assumiu a tarefa.
+O `git fetch` traz as branches que os colegas publicaram e as guarda como `origin/...`. A sua branch e os seus arquivos não mudam.
 
-Por exemplo, na Issue `#2`:
-
-```markdown
-Implementar Livro conforme o contrato combinado.
-
-Critérios:
-- novo livro nasce disponível;
-- emprestar() devolve false se já estiver emprestado;
-- devolver() devolve false se não estiver emprestado.
+```bash
+git fetch
+git branch -a
 ```
 
-Atribuir a Issue a uma pessoa evita que duas comecem a mesma tarefa. Uma etiqueta como `Integrante 2` também ajuda a filtrar o que pertence a cada um.
+```text
+* feature/livro
+  main
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/feature/aplicacao-biblioteca
+  remotes/origin/feature/livro
+  remotes/origin/feature/usuario
+  remotes/origin/main
+```
 
-As Issues têm uma segunda utilidade: quando o Pull Request que as resolve for integrado, elas podem ser fechadas automaticamente. Isso aparece na seção 5.
+Com as ferramentas do Tópico 3, você examina a branch de outra pessoa sem trocar de branch:
+
+```bash
+git log --oneline main..origin/feature/usuario
+git diff --stat main...origin/feature/usuario
+git show origin/feature/usuario:src/main/java/br/com/biblioteca/Usuario.java
+```
+
+E também descobre se a `main` recebeu algo que você ainda não tem:
+
+```bash
+git log --oneline main..origin/main
+```
+
+Se essa lista vier vazia, a sua `main` está em dia. Se não vier, um `git pull` na `main` a atualiza.
+
+### Publicar não é integrar
+
+Uma confusão frequente no começo: o colega disse "já subi" e a classe dele não aparece na sua `main`. Ele fez `push` da **branch** dele. O trabalho só entra na `main` quando alguém o **integra**, por Pull Request ou por merge. Até lá, ele existe apenas em `origin/feature/...`.
+
+### A regra de ouro em equipe
+
+No Tópico 3, você aprendeu que o histórico publicado não deve ser reescrito. Em equipe, essa regra ganha nomes concretos:
+
+- a `main` **nunca** recebe `reset`, `rebase` ou `push --force`;
+- a branch de um colega é dele: você a lê, revisa e comenta, mas não reescreve;
+- a sua branch pode ser reorganizada (`rebase`, `rebase -i`, `--force-with-lease`) só enquanto ninguém mais a usa, ou seja, antes de pedir revisão;
+- para desfazer algo que já está na `main`, use `git revert` numa branch e integre como qualquer outra mudança.
 
 ---
 
@@ -263,6 +288,8 @@ git merge main
 
 Esse é o mesmo `merge` que você usou no Tópico 2 do Git, agora na direção contrária: trazendo a `main` para a sua branch. Fazer isso com frequência evita que as diferenças se acumulem.
 
+No Tópico 3, você viu outra forma de atualizar a branch: `git rebase main`. Em equipe, ela só vale **antes** de a branch ser compartilhada para revisão. Depois que um colega baixou a sua branch para revisar, reescrevê-la obrigaria um `push --force-with-lease` e confundiria a cópia dele. A partir daí, use `git merge main`, que só acrescenta commits.
+
 ---
 
 ## 5. Pull Request: pedir para integrar
@@ -304,19 +331,43 @@ Exemplo de descrição:
 - emprestar() e devolver() retornando boolean.
 - estaDisponivel() e getters.
 
-## Issue relacionada
-Closes #2
+## Como testar
+- mvn compile termina em BUILD SUCCESS.
+- Emprestar um livro já emprestado devolve false.
 ```
 
-### Ligar o PR à Issue
+A seção **Como testar** poupa tempo de quem revisa: ela diz o que conferir.
 
-A linha `Closes #2` tem efeito prático. Quando o PR for integrado à branch padrão do repositório, o GitHub fecha automaticamente a Issue `#2`. O mesmo vale para palavras como `Fixes` e `Resolves`.
+### Integrar pelo botão do GitHub
 
-### Integrando o PR
+Depois da revisão, alguém aciona o botão de integração. O GitHub oferece *merge commit*, *squash* (junta os commits da branch em um, como o rebase interativo do Tópico 3) e *rebase*. Para o trio, o *merge commit* é suficiente.
 
-Depois da revisão, alguém aciona o botão de integração. O GitHub oferece *merge commit*, *squash* (junta os commits da branch em um) e *rebase*; para o trio, o *merge commit* é suficiente.
+### Integrar com um merge local
 
-Depois da integração, o GitHub oferece apagar a branch remota, o que costuma ser uma boa limpeza. Localmente, atualize a `main` e remova a branch que já cumpriu o papel:
+O botão não é o único caminho. Um PR aprovado também pode ser integrado no terminal, com o merge que você já conhece:
+
+```bash
+git switch main
+git pull
+git merge --no-ff feature/livro -m "Integra feature/livro"
+mvn compile
+git push
+```
+
+| Parte | Função |
+|---|---|
+| `git pull` | garante que a `main` local está igual à do GitHub antes de integrar |
+| `--no-ff` | cria um commit de merge mesmo quando um fast-forward seria possível, como faz o botão *Create a merge commit* |
+| `mvn compile` | confere, **antes** de publicar, que o conjunto integrado compila |
+| `git push` | publica a `main` integrada |
+
+Esse exemplo integra uma branch que você tem localmente. Para integrar a branch de outra pessoa, rode `git fetch` antes e use `origin/feature/livro` no lugar de `feature/livro`.
+
+Quando os commits do PR chegam à `main` pelo `push`, o GitHub marca o PR como **Merged** sozinho. O merge local tem uma vantagem: você compila e testa o resultado da integração no seu computador antes de publicá-lo. Se o `push` for recusado, alguém integrou outra coisa nesse meio-tempo. Faça `git pull`, compile de novo e repita. **Nunca** force o envio da `main`.
+
+### Limpar depois da integração
+
+Depois da integração pelo botão, o GitHub oferece apagar a branch remota, o que costuma ser uma boa limpeza. Depois de um merge local, apague-a com `git push origin --delete feature/livro`. Localmente, atualize a `main` e remova a branch que já cumpriu o papel:
 
 ```bash
 git switch main
@@ -425,7 +476,7 @@ Se algo falhar, a mensagem ajuda a classificar o problema:
 
 Compilar não esgota a verificação. Também é preciso **executar** e conferir o comportamento. Um método que existe, mas ainda tem corpo provisório, não é uma funcionalidade pronta.
 
-As correções seguem o mesmo fluxo: Issue, branch, PR, revisão.
+As correções seguem o mesmo fluxo: branch, PR, revisão e integração.
 
 ---
 
@@ -438,7 +489,7 @@ No Tópico 1 de Java, você compilou com `javac` e executou com `java`. Isso fun
 - qual versão do Java o projeto exige?
 - como outra pessoa compila o projeto sem aprender o seu comando?
 
-O **Maven** é uma ferramenta de gerenciamento e automação de projetos Java. Ele padroniza a estrutura do projeto, descreve o projeto em um arquivo e executa tarefas como a compilação. Mais adiante ele também cuida de bibliotecas externas, testes e empacotamento, assuntos do próximo tópico.
+O **Maven** é uma ferramenta de gerenciamento e automação de projetos Java. Ele padroniza a estrutura do projeto, descreve o projeto em um arquivo e executa tarefas como a compilação. Mais adiante ele também cuida de bibliotecas externas, testes e empacotamento, assuntos de uma etapa posterior do curso.
 
 ### Convenção sobre configuração
 
@@ -466,7 +517,7 @@ gestao-biblioteca/
 |---|---|
 | `pom.xml` | arquivo principal de configuração do projeto |
 | `src/main/java` | código-fonte da aplicação |
-| `src/test/java` | código dos testes automatizados, tema do próximo tópico |
+| `src/test/java` | código dos testes automatizados, tema de uma etapa posterior |
 | `br/com/biblioteca` | pastas que correspondem ao `package br.com.biblioteca` |
 
 O pacote declarado no arquivo precisa corresponder à pasta. Um arquivo com `package br.com.biblioteca;` deve estar em `br/com/biblioteca`.
@@ -562,9 +613,9 @@ Livro não encontrado: L999
 
 Você já usou `javac -d` para escolher onde gravar os `.class`. O Maven assume essa decisão por convenção: o fonte fica em `src/main/java` e o resultado em `target/classes`.
 
-### O que fica para o próximo tópico
+### O que fica para depois
 
-O Maven faz bem mais do que compilar: bibliotecas externas, ciclo de vida, testes e empacotamento ficam para o tópico seguinte. Aqui, basta entender a estrutura, o `pom.xml`, as coordenadas, o `SNAPSHOT` e o `mvn compile`.
+O Maven faz bem mais do que compilar: bibliotecas externas, ciclo de vida, testes e empacotamento ficam para uma etapa posterior do curso. Aqui, basta entender a estrutura, o `pom.xml`, as coordenadas, o `SNAPSHOT` e o `mvn compile`.
 
 ### Ponte com COBOL
 
@@ -594,6 +645,18 @@ A aprovação diz que a revisão não encontrou impedimentos. Ela não executa o
 
 Isso anula a revisão. O objetivo é que alguém diferente do autor examine a alteração.
 
+### “Já dei `git fetch`, então minha `main` está atualizada”
+
+O `fetch` atualiza só `origin/main`. A sua `main` continua onde estava até um `git pull` ou um `git merge origin/main`.
+
+### “Publiquei a branch, então o trabalho está na `main`”
+
+Publicar coloca a branch no GitHub. O trabalho só chega à `main` quando alguém integra, pelo botão do PR ou por merge local seguido de `push`.
+
+### “O revisor pediu mudanças; vou fazer rebase e forçar o envio”
+
+Durante a revisão, outras pessoas podem ter baixado a sua branch. Corrija com commits novos e `git push` comum. Reescrever histórico é para antes de compartilhar.
+
 ### “Basta criar o convite para a pessoa conseguir enviar código”
 
 O convite precisa ser aceito. Sem isso, o `git push` é recusado.
@@ -604,7 +667,7 @@ Ele apenas compila. A execução é feita com `java -cp target/classes` e o nome
 
 ---
 
-## 10. Checklist do Tópico 3
+## 10. Checklist do Tópico 4
 
 - [ ] Sei dar acesso ao repositório a outras pessoas e lembro que o convite precisa ser aceito.
 - [ ] Sei que o push por HTTPS autentica pelo Git Credential Manager, no navegador.
@@ -613,12 +676,14 @@ Ele apenas compila. A execução é feita com `java -cp target/classes` e o nome
 - [ ] Consigo listar assinaturas de métodos como parte de um contrato.
 - [ ] Entendo o que é um construtor e como ele é chamado com `new`.
 - [ ] Sei por que um esqueleto compilável vai para a `main` antes do trabalho paralelo.
-- [ ] Sei criar uma Issue com título, descrição e responsável.
+- [ ] Sei acompanhar o trabalho dos colegas com `git fetch`, `git branch -a` e `main..origin/feature`.
+- [ ] Sei que o `fetch` não altera a minha branch e que publicar não é integrar.
 - [ ] Sei criar uma branch com `git switch -c` a partir da `main` atualizada.
 - [ ] Sei publicar a branch com `git push -u origin`.
 - [ ] Sei trazer a `main` para a minha branch com `git merge main`.
 - [ ] Sei abrir um Pull Request com `base` e `compare` corretos.
-- [ ] Sei ligar o PR a uma Issue com `Closes #N`.
+- [ ] Sei integrar um PR com merge local (`git merge --no-ff`) e publicar com `git push`.
+- [ ] Sei por que não reescrevo uma branch que já está em revisão.
 - [ ] Sei o que olhar em um code review.
 - [ ] Sei trazer a branch de outra pessoa para executá-la localmente.
 - [ ] Distingo Comment, Approve e Request changes.
@@ -639,9 +704,9 @@ Ele apenas compila. A execução é feita com `java -cp target/classes` e o nome
 
 Neste tópico, você passou do uso individual do Git para o trabalho coordenado. O código continua importante, mas a qualidade do resultado depende também de como a equipe combina, divide, revisa e integra.
 
-Primeiro, a equipe fixa um contrato e o transforma em um esqueleto que compila. Depois, as tarefas viram Issues, cada pessoa trabalha em sua branch, e as alterações chegam à `main` por Pull Requests revisados. Ao final, todos atualizam a `main`, compilam e executam o conjunto para ter certeza de que as partes realmente se encaixam.
+Primeiro, a equipe fixa um contrato e o transforma em um esqueleto que compila. Depois, cada pessoa trabalha em sua branch, acompanha as dos colegas com `fetch`, e as alterações chegam à `main` por Pull Requests revisados, integrados pelo botão ou por merge local. Ao final, todos atualizam a `main`, compilam e executam o conjunto para ter certeza de que as partes realmente se encaixam.
 
-O Maven entrou como uma base comum. Com uma estrutura padrão, um `pom.xml` e o comando `mvn compile`, qualquer integrante clona o projeto e o constrói da mesma forma. Os assuntos que ainda faltam, como dependências, ciclo de vida, testes e empacotamento, ficam para o próximo tópico, usando o mesmo projeto.
+O Maven entrou como uma base comum. Com uma estrutura padrão, um `pom.xml` e o comando `mvn compile`, qualquer integrante clona o projeto e o constrói da mesma forma. Os assuntos que ainda faltam, como dependências, ciclo de vida, testes e empacotamento, ficam para uma etapa posterior do curso, usando o mesmo projeto.
 
 Sua experiência com COBOL e mainframe continua útil: a atenção a layouts, a disciplina de mudança e o cuidado com o que vai para produção são a mesma preocupação, expressa agora em branches, Pull Requests e revisões.
 
@@ -652,6 +717,5 @@ Desenvolver em equipe é, antes de tudo, comunicar. O resultado depende de combi
 ## Referências oficiais
 
 - Documentação do GitHub sobre Pull Requests: <https://docs.github.com/pt/pull-requests>
-- Documentação do GitHub sobre Issues: <https://docs.github.com/pt/issues>
 - Apache Maven, introdução: <https://maven.apache.org/guides/getting-started/>
 - Apache Maven, estrutura de diretórios padrão: <https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html>

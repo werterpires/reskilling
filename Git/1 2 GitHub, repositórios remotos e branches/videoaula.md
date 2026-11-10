@@ -136,7 +136,7 @@ Comparar com a aula anterior:
 Apresentar, se houver tempo:
 
 - Git Graph: visualização gráfica do histórico e das branches.
-- GitHub Pull Requests: integração com GitHub para trabalhar com Pull Requests, assunto da próxima aula.
+- GitHub Pull Requests: integração com GitHub para trabalhar com Pull Requests, assunto da aula 4.
 
 Não confundir extensões complementares com a integração Git nativa do VS Code.
 
@@ -366,7 +366,7 @@ Pull:
 - Busca atualizações.
 - Integra as alterações à branch atual.
 
-**Não aprofundar:** estratégias avançadas de sincronização, rebase e resolução de divergências complexas.
+**Não aprofundar:** estratégias avançadas de sincronização, rebase e resolução de divergências complexas. O rebase é tema da aula 3.
 
 ## 6. Trabalhando com branches
 
@@ -739,17 +739,18 @@ Retomar:
 
 Até aqui, aprendemos a trabalhar com código versionado, compartilhar alterações e desenvolver funcionalidades em branches.
 
-Entretanto, ainda precisamos estabelecer um processo organizado para que as alterações sejam analisadas antes de integrar o código à branch principal.
+Entretanto, até agora o histórico só cresceu. Ainda não sabemos corrigir um commit, desfazer um erro já publicado nem atualizar uma branch sem criar um commit de merge.
 
 Próxima aula:
 
-- Fluxo colaborativo.
-- Feature branches.
-- Pull Requests.
-- Code Review.
-- Issues.
-- Introdução ao Maven.
-- Estrutura de projetos Java com pom.xml.
+- Comparar versões com as variações de git diff.
+- Desfazer alterações com restore, amend, reset e revert.
+- Recuperar commits com reflog.
+- Guardar trabalho pela metade com stash.
+- Rebase, pull --rebase e push --force-with-lease.
+- Rebase interativo e cherry-pick.
+
+Na aula 4, o trabalho passa a ser em trios, com Pull Requests, Code Review e introdução ao Maven.
 
 ### 10.3. Verificações finais
 
@@ -763,7 +764,7 @@ Próxima aula:
 
 **Resultado esperado:** o aluno consegue utilizar o Git integrado ao VS Code, conectar projetos ao GitHub, sincronizar repositórios, criar e publicar branches, integrar alterações com merge e resolver conflitos simples.
 
-**Mensagem de transição:** agora sabemos desenvolver e integrar funcionalidades. Na próxima aula, vamos estabelecer um fluxo de colaboração profissional, utilizando Pull Requests e Code Review, antes de começar a estruturar nossos projetos Java com Maven.
+**Mensagem de transição:** agora sabemos desenvolver e integrar funcionalidades. Na próxima aula, vamos aprender a comparar, desfazer e reorganizar o histórico, antes de levar tudo isso para o trabalho em equipe, com Pull Requests, Code Review e Maven.
 
 ## Notas para a condução
 

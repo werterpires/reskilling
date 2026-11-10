@@ -1,18 +1,19 @@
-# Exercícios — Tópico 3: Colaboração, Maven e aplicação bancária em trios
+# Exercícios — Tópico 4: Colaboração, Maven e aplicação bancária em trios
 
 ## Projeto prático em trio: Sistema Bancário
 
-Esta é a folha de tarefas da atividade em trios. Cada trio construirá, em um repositório novo e compartilhado no GitHub, uma aplicação bancária de console. O processo importa mais que o código: três pessoas combinam um contrato, trabalham em branches separadas, revisam-se mutuamente e integram tudo na `main` por Pull Request.
+Esta é a folha de tarefas da atividade em trios. Cada trio construirá, em um repositório novo e compartilhado no GitHub, uma aplicação bancária de console. O processo importa mais que o código: três pessoas combinam um contrato, trabalham em branches separadas, acompanham o trabalho umas das outras com `fetch` e `pull`, revisam-se mutuamente e integram tudo na `main`, pelo botão do Pull Request ou com um merge local.
 
 Ao longo desta sequência, vocês irão:
 
 - criar o repositório, convidar os colaboradores e preparar o projeto Maven;
 - combinar o contrato entre `Cliente`, `Conta` e `AplicacaoBanco` e integrar um esqueleto das classes;
-- registrar o trabalho em Issues e desenvolver em paralelo, uma branch por integrante;
-- abrir Pull Requests com `Closes #N`, revisar e integrar;
+- desenvolver em paralelo, uma branch por integrante;
+- acompanhar as branches dos colegas com `git fetch`, sem misturar com o próprio trabalho;
+- abrir Pull Requests, revisar e integrar, inclusive com merge local;
 - executar o cenário de teste, corrigir pelo mesmo fluxo e documentar a execução.
 
-Os dados ficam em memória. Não haverá banco de dados, autenticação, interface gráfica, dependências, testes automatizados nem JAR: isso pertence à próxima aula.
+Os dados ficam em memória. Não haverá banco de dados, autenticação, interface gráfica, dependências, testes automatizados nem JAR: isso fica para uma etapa posterior do curso.
 
 > Trabalhe no **computador físico**, não na VDI. Se algum comando não apresentar o resultado esperado, pare e procure o instrutor com a mensagem **completa** exibida no terminal.
 
@@ -32,13 +33,14 @@ Os comandos usam o **Git Bash**, com barras normais (`/`). Os botões do GitHub 
 
 Regras do começo ao fim:
 
-1. Só há um commit direto na `main`: a configuração inicial, no Exercício 36.
+1. Só há um commit direto na `main`: a configuração inicial, no Exercício 51.
 2. Cada integrante altera apenas o arquivo da sua responsabilidade, o que evita conflitos artificiais.
 3. Toda Pull Request (PR) precisa de revisão de outra pessoa. Ninguém aprova o próprio trabalho.
 4. Mudar um nome ou parâmetro do contrato exige avisar o trio **antes**.
 5. Commits pequenos, com mensagem descritiva. Evite `teste`, `final` e `alterações`.
+6. A regra de ouro do Tópico 3 vale para o trio: **nunca** use `reset`, `rebase` ou `push --force` na `main` nem na branch de um colega. Na sua própria branch, só reescreva o histórico antes de pedir revisão.
 
-Cada exercício informa **Quem faz**. Os Exercícios 41, 42 e 43 acontecem ao mesmo tempo, um por integrante.
+Cada exercício informa **Quem faz**. Os Exercícios 55, 56 e 57 acontecem ao mesmo tempo, um por integrante.
 
 ---
 
@@ -64,7 +66,7 @@ sistema-bancario/
 
 ---
 
-## Exercício 34 — Formar o trio e conferir o ambiente
+## Exercício 49 — Formar o trio e conferir o ambiente
 
 **Quem faz:** os três.
 
@@ -84,7 +86,7 @@ O Maven padroniza a estrutura do projeto e executa tarefas como a compilação. 
 
 ---
 
-## Exercício 35 — Criar o repositório e convidar os colaboradores
+## Exercício 50 — Criar o repositório e convidar os colaboradores
 
 **Quem faz:** Integrante 1 cria e convida. Integrantes 2 e 3 aceitam.
 
@@ -96,7 +98,7 @@ Conferência: nos três navegadores, `https://github.com/<usuario-do-integrante-
 
 ---
 
-## Exercício 36 — Preparar o `pom.xml` e o `.gitignore`
+## Exercício 51 — Preparar o `pom.xml` e o `.gitignore`
 
 **Quem faz:** Integrante 1. Os demais acompanham.
 
@@ -126,11 +128,11 @@ git commit -m "Adiciona pom.xml e .gitignore"
 git push origin main
 ```
 
-O `git status` deve listar `.gitignore` e `pom.xml` como não rastreados. O Git não registra pastas vazias: `src/main/java/...` só entra no repositório com o esqueleto, no Exercício 39.
+O `git status` deve listar `.gitignore` e `pom.xml` como não rastreados. O Git não registra pastas vazias: `src/main/java/...` só entra no repositório com o esqueleto, no Exercício 54.
 
 ---
 
-## Exercício 37 — Clonar e compilar o projeto vazio
+## Exercício 52 — Clonar e compilar o projeto vazio
 
 **Quem faz:** Integrantes 2 e 3 clonam. Os três compilam.
 
@@ -147,7 +149,7 @@ Na primeira execução o Maven baixa plugins, o que pode demorar. O final deve c
 
 ---
 
-## Exercício 38 — Acordar o contrato
+## Exercício 53 — Acordar o contrato
 
 **Quem faz:** os três, juntos, sem escrever código ainda.
 
@@ -176,7 +178,7 @@ Um copybook compartilhado ou a lista de um `CALL ... USING` também fixa o que d
 
 ---
 
-## Exercício 39 — Integrar o esqueleto das classes
+## Exercício 54 — Integrar o esqueleto das classes
 
 **Quem faz:** Integrante 1 escreve e abre a PR. Integrante 2 revisa. Integrante 3 comenta. Integrante 1 integra.
 
@@ -239,7 +241,7 @@ git push -u origin feature/esqueleto
 
 No GitHub, use **Compare & pull request** e abra a PR para a `main` com o título `Cria esqueleto das classes conforme o contrato`. Será a PR nº 1.
 
-**Integrante 2.** Em **Files changed**, compare cada assinatura com a tabela do Exercício 38. Se estiver tudo igual, use **Review changes → Approve**; se algo divergir, use **Comment** indicando a linha. **Integrante 3.** Deixe ao menos um comentário.
+**Integrante 2.** Em **Files changed**, compare cada assinatura com a tabela do Exercício 53. Se estiver tudo igual, use **Review changes → Approve**; se algo divergir, use **Comment** indicando a linha. **Integrante 3.** Deixe ao menos um comentário.
 
 **Integrante 1.** Com a aprovação, clique em **Merge pull request**, mantenha **Create a merge commit** e depois clique em **Delete branch**.
 
@@ -254,38 +256,9 @@ O Integrante 1 também executa `git branch -d feature/esqueleto`.
 
 ---
 
-## Exercício 40 — Registrar o trabalho em Issues
+## Exercício 55 — Integrante 1: implementar `Cliente`
 
-**Quem faz:** cada integrante cria as suas. O Integrante 1 cria duas.
-
-Uma Issue registra o que precisa ser feito e quem é responsável. Em **Issues → New issue**, crie, com o responsável em **Assignees**:
-
-| Título | Responsável |
-|---|---|
-| Criar classe Cliente | Integrante 1 |
-| Criar classe Conta | Integrante 2 |
-| Implementar menu e controle da aplicação | Integrante 3 |
-| Implementar a transferência entre contas | Integrante 1 |
-
-Use uma descrição como esta:
-
-```markdown
-## Objetivo
-Implementar a classe `Conta` conforme o contrato do trio.
-
-## Critérios de aceite
-- [ ] Depósito rejeita valor menor ou igual a zero
-- [ ] Saque rejeita valor maior que o saldo
-- [ ] O projeto compila com `mvn compile`
-```
-
-Issues e PRs compartilham a numeração. Como o esqueleto foi a PR nº 1, as Issues serão 2 a 5 se criadas na ordem da tabela. Use sempre o número **real** exibido e anote-o: Cliente `#__`, Conta `#__`, Menu `#__`, Transferência `#__`.
-
----
-
-## Exercício 41 — Integrante 1: implementar `Cliente`
-
-**Quem faz:** Integrante 1, em paralelo com os Exercícios 42 e 43.
+**Quem faz:** Integrante 1, em paralelo com os Exercícios 56 e 57.
 
 ```bash
 git switch main
@@ -309,9 +282,9 @@ Se terminar antes, releia o contrato. Não toque nos arquivos dos outros.
 
 ---
 
-## Exercício 42 — Integrante 2: implementar `Conta`
+## Exercício 56 — Integrante 2: implementar `Conta`
 
-**Quem faz:** Integrante 2, em paralelo com os Exercícios 41 e 43.
+**Quem faz:** Integrante 2, em paralelo com os Exercícios 55 e 57.
 
 ```bash
 git switch main
@@ -339,13 +312,13 @@ Requisitos para `Conta.java`:
 
 **Ponte com COBOL.** Campos como `PIC S9(7)V99` fazem aritmética decimal exata. Em Java, `double` não garante essa exatidão em valores monetários, e `BigDecimal` existe para preservar os centavos.
 
-Faça commits pequenos, execute `mvn compile` e publique com `git push -u origin feature/conta`. Ainda não há menu para testar `Conta`; isso acontece no Exercício 46.
+Faça commits pequenos, execute `mvn compile` e publique com `git push -u origin feature/conta`. Ainda não há menu para testar `Conta`; isso acontece no Exercício 61.
 
 ---
 
-## Exercício 43 — Integrante 3: implementar `AplicacaoBanco`
+## Exercício 57 — Integrante 3: implementar `AplicacaoBanco`
 
-**Quem faz:** Integrante 3, em paralelo com os Exercícios 41 e 42.
+**Quem faz:** Integrante 3, em paralelo com os Exercícios 55 e 56.
 
 ```bash
 git switch main
@@ -382,7 +355,7 @@ Escolha uma opção:
 - `5` e `6`: pedem o valor, chamam `depositar` ou `sacar` e informam, pelo `boolean`, se foi realizado;
 - `7`: pede origem, destino e valor, chama `transferir` e informa o resultado.
 
-**Não implemente o corpo de `transferir`:** ele pertence à Issue do Integrante 1 (Exercício 47). Implemente apenas `buscarConta`.
+**Não implemente o corpo de `transferir`:** ele é tarefa do Integrante 1, no Exercício 62. Implemente apenas `buscarConta`.
 
 ### Recursos novos de Java
 
@@ -394,13 +367,54 @@ Escolha uma opção:
 
 **Ponte com COBOL.** O laço lembra um `PERFORM UNTIL OPCAO = 0` em torno de um `ACCEPT`, com um `EVALUATE` escolhendo a ação. É a mesma ideia de repetição e decisão; o `Scanner` cumpre o papel de ler a entrada.
 
-Por enquanto, `Cliente` e `Conta` só têm o esqueleto: o menu compila e aparece, mas não opera de verdade. O teste funcional acontece no Exercício 45, com as classes dos colegas na `main`.
+Por enquanto, `Cliente` e `Conta` só têm o esqueleto: o menu compila e aparece, mas não opera de verdade. O teste funcional acontece no Exercício 60, com as classes dos colegas na `main`.
 
 Faça commits pequenos (`Cria menu principal da aplicacao`, `Implementa operacoes de deposito e saque`), execute `mvn compile` e publique com `git push -u origin feature/aplicacao-banco`.
 
 ---
 
-## Exercício 44 — Abrir as Pull Requests
+## Exercício 58 — Acompanhar o trabalho do trio com `fetch`
+
+**Quem faz:** os três, depois que as três branches foram publicadas.
+
+Cada um continua na própria branch. Busque o que os colegas enviaram:
+
+```bash
+git fetch
+git branch -a
+git status -sb
+```
+
+`git branch -a` lista as branches remotas, como `remotes/origin/feature/conta`. O `git status -sb` não muda: o `fetch` só atualiza as referências `origin/...` e não mexe na sua branch nem nos seus arquivos.
+
+Escolha a branch de um colega e examine-a **sem sair da sua**:
+
+```bash
+git log --oneline main..origin/feature/conta
+git diff --stat main...origin/feature/conta
+git show origin/feature/conta:src/main/java/br/com/banco/Conta.java
+```
+
+O primeiro comando lista os commits do colega que ainda não estão na `main`. O segundo resume o que ele mudou desde que a branch nasceu, com os três pontos do Tópico 3. O terceiro mostra o arquivo como está na branch dele. Troque `feature/conta` pela branch que quiser examinar.
+
+Veja o desenho das três linhas de trabalho:
+
+```bash
+git log --oneline --graph --all -12
+```
+
+As três branches saem do mesmo commit da `main`, o da integração do esqueleto, e seguem separadas. Agora atualize a `main`:
+
+```bash
+git switch main
+git pull
+```
+
+O resultado é `Already up to date.`: as branches foram publicadas, mas nenhuma foi integrada. **Publicar não é integrar.** O trabalho só chega à `main` por PR ou merge, no Exercício 60. Volte à sua branch com `git switch` antes de continuar.
+
+---
+
+## Exercício 59 — Abrir as Pull Requests
 
 **Quem faz:** cada integrante abre a PR da sua branch.
 
@@ -412,11 +426,12 @@ No GitHub, use **Compare & pull request**, com base na `main`, e este modelo:
 - Implementados depósito e saque com BigDecimal.
 - Implementada a consulta de saldo.
 
-## Issue relacionada
-Closes #3
+## Como testar
+- `mvn compile` termina em BUILD SUCCESS.
+- Depósito de valor negativo e saque acima do saldo são recusados.
 ```
 
-Troque `#3` pelo número real da sua Issue. `Closes #3` fecha a Issue automaticamente quando a PR é integrada na `main`.
+A seção **Como testar** diz ao revisor o que conferir. Anote o número que o GitHub dá a cada PR (`#2`, `#3`...): ele faz parte da entrega.
 
 Defina o revisor em **Reviewers**, em rodízio:
 
@@ -430,9 +445,9 @@ Defina o revisor em **Reviewers**, em rodízio:
 
 ---
 
-## Exercício 45 — Revisar, ajustar e integrar
+## Exercício 60 — Revisar, ajustar e integrar
 
-**Quem faz:** revisores e autores, na ordem do Exercício 44.
+**Quem faz:** revisores e autores, na ordem do Exercício 59.
 
 **Revisor.** Compile a branch do colega antes de opinar:
 
@@ -454,9 +469,9 @@ Cada revisão deve ter ao menos um comentário. Aprovar não substitui testar. O
 
 **Autor.** Se houver pedido de mudança, corrija na mesma branch, faça `commit` e `push`: a PR se atualiza e o revisor avalia de novo.
 
-**Integração.** Integrem na ordem `Cliente`, `Conta`, `AplicacaoBanco`. Em cada PR aprovada, o autor clica em **Merge pull request** (**Create a merge commit**) e em **Delete branch**, e confirma que a Issue foi fechada.
+**Integração pelo GitHub.** Integrem na ordem `Cliente`, `Conta`, `AplicacaoBanco`. Nas PRs aprovadas de `Cliente` e `Conta`, o autor clica em **Merge pull request** (**Create a merge commit**) e em **Delete branch**.
 
-**Integrante 3.** Antes de integrar, traga as classes dos colegas e teste o menu de verdade:
+**Integrante 3: trazer a `main` para a branch.** Antes de integrar, traga as classes dos colegas e teste o menu de verdade:
 
 ```bash
 git switch main
@@ -467,7 +482,22 @@ mvn compile
 java -cp target/classes br.com.banco.AplicacaoBanco
 ```
 
-Cadastre um cliente, crie uma conta, deposite `100,00` e consulte as contas. Se achar defeito, corrija na mesma branch e faça `push` antes de integrar.
+Cadastre um cliente, crie uma conta, deposite `100,00` e consulte as contas. Se achar defeito, corrija na mesma branch. Depois, publique com `git push`. É um `push` comum: o merge acrescentou um commit e não reescreveu nada. **Não** use `rebase` aqui, porque a branch já está em revisão e o revisor tem uma cópia dela.
+
+**Integrante 3: integrar com merge local.** Com a PR aprovada, integre pelo terminal em vez do botão:
+
+```bash
+git switch main
+git pull
+git merge --no-ff feature/aplicacao-banco -m "Integra feature/aplicacao-banco"
+mvn compile
+git push
+git push origin --delete feature/aplicacao-banco
+```
+
+O `--no-ff` cria um commit de merge mesmo quando um fast-forward seria possível, como faz o botão **Create a merge commit**. Assim o histórico registra o momento da integração. Abra a PR no GitHub: ela aparece como **Merged** sozinha, porque os commits dela chegaram à `main`.
+
+Se o `git push` for recusado, alguém integrou algo na `main` nesse meio-tempo. Faça `git pull`, compile de novo e repita o `git push`. **Nunca** force o envio da `main`.
 
 **Os três** atualizam a `main` e removem as branches locais já integradas, inclusive as baixadas para revisar (`git branch` as lista):
 
@@ -479,7 +509,7 @@ git branch -d feature/<branch-integrada>
 
 ---
 
-## Exercício 46 — Verificar a integração na `main`
+## Exercício 61 — Verificar a integração na `main`
 
 **Quem faz:** os três, cada um no seu computador.
 
@@ -499,11 +529,11 @@ Uma classe correta sozinha pode falhar quando integrada. Confira se as assinatur
 
 ---
 
-## Exercício 47 — Implementar a transferência pelo mesmo fluxo
+## Exercício 62 — Implementar a transferência pelo mesmo fluxo
 
-**Quem faz:** Integrante 1 implementa. Integrante 2 revisa. Integrante 3 prepara o Exercício 48.
+**Quem faz:** Integrante 1 implementa. Integrante 2 revisa. Integrante 3 prepara o Exercício 63.
 
-**Integrante 1** (Issue de transferência): crie `feature/transferencia` a partir da `main` atualizada e implemente o corpo de `transferir`, sem alterar o resto do arquivo:
+**Integrante 1:** crie `feature/transferencia` a partir da `main` atualizada e implemente o corpo de `transferir`, sem alterar o resto do arquivo:
 
 1. localize origem e destino com `buscarConta`; recuse se algum não existir;
 2. recuse se forem a mesma conta;
@@ -512,11 +542,11 @@ Uma classe correta sozinha pode falhar quando integrada. Confira se as assinatur
 
 Sacar primeiro garante que, em qualquer falha, nenhum saldo mudou. Depositar primeiro deixaria o destino com dinheiro que não saiu da origem se o saque falhasse. Escreva uma mensagem para cada motivo de recusa.
 
-Faça `commit`, `mvn compile`, publique e abra a PR com `Closes #<Issue de transferência>`. **Integrante 2** revisa com o checklist do Exercício 45. **Integrante 3** anota em papel os saldos esperados em cada passo do Exercício 48. Depois da integração, os três executam `git switch main` e `git pull`.
+Faça `commit`, `mvn compile`, publique e abra a PR. Antes de publicar, se a `main` tiver avançado, você pode reaplicar a branch sobre ela com `git rebase main`, como no Tópico 3: a branch ainda é só sua. Depois de abrir a PR, não reescreva mais. **Integrante 2** revisa com o checklist do Exercício 60. **Integrante 3** anota em papel os saldos esperados em cada passo do Exercício 63. Depois da integração, os três executam `git switch main` e `git pull`.
 
 ---
 
-## Exercício 48 — Executar o cenário principal
+## Exercício 63 — Executar o cenário principal
 
 **Quem faz:** os três, cada um no seu computador, comparando resultados.
 
@@ -556,13 +586,13 @@ Se algo divergir, anote o passo, o esperado e o obtido para o próximo exercíci
 
 ---
 
-## Exercício 49 — Corrigir e documentar pelo mesmo fluxo
+## Exercício 64 — Corrigir e documentar pelo mesmo fluxo
 
 **Quem faz:** os três. Quem corrige e quem revisa são pessoas diferentes.
 
-**Parte A — correções.** Para cada divergência do Exercício 48, o trio escolhe quem corrige e segue o fluxo completo: Issue `Corrigir: <descrição>`; branch `fix/<descrição-curta>` a partir da `main` atualizada; commit e publicação; PR com `Closes #N`; revisão e aprovação por outra pessoa; integração e atualização da `main` de todos. Sem defeitos, avise o instrutor e siga para a Parte B.
+**Parte A — correções.** Para cada divergência do Exercício 63, o trio escolhe quem corrige e segue o fluxo completo: branch `fix/<descrição-curta>` a partir da `main` atualizada; commit e publicação; PR descrevendo o defeito e a correção; revisão e aprovação por outra pessoa; integração, pelo botão ou por merge local; e atualização da `main` de todos. Sem defeitos, avise o instrutor e siga para a Parte B.
 
-**Parte B — documentação (obrigatória).** O Integrante 2 cria a Issue `Documentar como compilar e executar`, a branch `docs/readme-execucao` e acrescenta ao `README.md`:
+**Parte B — documentação (obrigatória).** O Integrante 2 cria a branch `docs/readme-execucao` e acrescenta ao `README.md`:
 
 ```markdown
 ## Como compilar
@@ -581,7 +611,7 @@ Troque os papéis pelos nomes reais. O Integrante 3 revisa e o Integrante 2 inte
 
 ---
 
-## Exercício 50 — Conferência final
+## Exercício 65 — Conferência final
 
 **Ambiente e Maven**
 
@@ -603,11 +633,14 @@ Troque os papéis pelos nomes reais. O Integrante 3 revisa e o Integrante 2 inte
 - [ ] `AplicacaoBanco` guarda `List<Conta>` e tem `buscarConta` e `transferir`.
 - [ ] O menu permanece até a opção `0`.
 
-**Issues, PRs e revisão**
+**Sincronização, PRs e revisão**
 
-- [ ] Há uma Issue por responsabilidade, fechadas por `Closes #N`.
+- [ ] Cada integrante examinou a branch de um colega com `git fetch`, sem sair da própria branch.
 - [ ] Toda PR foi revisada por outra pessoa e cada integrante revisou ao menos uma.
 - [ ] Ninguém aprovou o próprio trabalho.
+- [ ] A PR de `AplicacaoBanco` foi integrada por merge local e aparece como **Merged** no GitHub.
+- [ ] Ninguém usou `reset`, `rebase` ou `push --force` na `main`.
+- [ ] `git log --oneline --graph` mostra os commits de merge das integrações.
 
 **Cenário**
 
@@ -625,13 +658,13 @@ Entregue o endereço do repositório, os nomes dos integrantes e os números das
 https://github.com/<usuario-do-integrante-1>/sistema-bancario
 ```
 
-Como o repositório é privado, adicione o usuário GitHub do instrutor como colaborador, pelo procedimento do Exercício 35. A `main` deve ter a estrutura do **Ponto de partida**.
+Como o repositório é privado, adicione o usuário GitHub do instrutor como colaborador, pelo procedimento do Exercício 50. A `main` deve ter a estrutura do **Ponto de partida**.
 
 ---
 
 ## Código final de referência
 
-Use esta seção somente depois de concluir a sequência (exceto o `pom.xml`, usado no Exercício 36). O seu código pode usar mensagens diferentes, desde que respeite o contrato.
+Use esta seção somente depois de concluir a sequência (exceto o `pom.xml`, usado no Exercício 51). O seu código pode usar mensagens diferentes, desde que respeite o contrato.
 
 ### `pom.xml`
 
@@ -960,12 +993,13 @@ public class AplicacaoBanco {
 
 ## Síntese final do projeto
 
-No Tópico 1, você guardou o histórico de um projeto local. No Tópico 2, publicou-o no GitHub e aprendeu branches e conflitos. Agora, três pessoas trabalharam no mesmo repositório sem pisar umas nas outras.
+No Tópico 1, você guardou o histórico de um projeto local. No Tópico 2, publicou-o no GitHub e aprendeu branches e conflitos. No Tópico 3, aprendeu a comparar, desfazer e reorganizar o histórico. Agora, três pessoas trabalharam no mesmo repositório sem pisar umas nas outras.
 
 - O Maven padroniza a estrutura e a compilação, e o `pom.xml` descreve o projeto por suas coordenadas.
 - Um contrato combinado antes do código, fixado por um esqueleto que compila, evita que classes corretas sozinhas falhem juntas.
-- Issues registram o que fazer e quem faz; `Closes #N` liga a PR à Issue.
-- A PR é um espaço de comunicação e revisão, e não só um botão para juntar código.
+- `fetch` mostra o trabalho dos colegas sem misturá-lo ao seu; `pull` traz a `main` atualizada; `push` publica, mas publicar não é integrar.
+- A PR é um espaço de comunicação e revisão, e não só um botão para juntar código. A integração pode ser feita pelo botão ou por um merge local seguido de `push`.
+- Em equipe, a regra de ouro deixa de ser teoria: a `main` e as branches dos colegas nunca são reescritas.
 - Integrar é verificar: compilar, executar e conferir o cenário depois que as peças se encontram.
 
-Dependências, ciclo de vida, testes automatizados e JAR ficam para a próxima aula, sobre o mesmo projeto.
+Dependências, ciclo de vida, testes automatizados e JAR ficam para uma etapa posterior do curso, sobre o mesmo projeto.

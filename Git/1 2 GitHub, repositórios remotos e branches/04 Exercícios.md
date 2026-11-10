@@ -18,7 +18,7 @@ Ao longo dos exercícios, você irá:
 - fazer uma integração que gera um commit de merge;
 - provocar, resolver e registrar um conflito no `README.md`.
 
-Esta etapa não usa `rebase` nem Maven. Pull Requests, revisão de código e Issues são assunto do próximo tópico.
+Esta etapa não usa `rebase`, `reset` nem `revert`: eles são assunto do próximo tópico. Pull Requests, revisão de código e Maven ficam para o Tópico 4.
 
 > Continue trabalhando no **computador físico**, não na VDI. Se algum comando não apresentar o resultado esperado, pare e procure o instrutor com o código aberto e a mensagem **completa** exibida no terminal.
 
@@ -634,7 +634,7 @@ branch 'feature/contar-pendentes' set up to track 'origin/feature/contar-pendent
   main                     280ef6c [origin/main] Acrescenta autoria no README pelo GitHub
 ```
 
-O GitHub pode exibir mensagens como `remote: Create a pull request for...`. Ignore-as por enquanto: Pull Requests são o assunto do próximo tópico.
+O GitHub pode exibir mensagens como `remote: Create a pull request for...`. Ignore-as por enquanto: Pull Requests são assunto do Tópico 4.
 
 No navegador, confira:
 
@@ -1172,4 +1172,4 @@ No Tópico 1, o `gestor-tarefas` ganhou um histórico local. Neste, ele passou a
 - `merge` traz o trabalho de uma branch para outra, avançando o ponteiro (`Fast-forward`) ou criando um commit de merge;
 - conflito é um pedido de decisão humana, não um erro: você lê os marcadores, escolhe o texto final, remove-os e registra a resolução.
 
-O VS Code mostra tudo isso de forma visual, mas os comandos explicam o que acontece por trás. No próximo tópico, o mesmo repositório servirá de base para o trabalho em equipe.
+O VS Code mostra tudo isso de forma visual, mas os comandos explicam o que acontece por trás. No próximo tópico, o mesmo repositório servirá para praticar como comparar, desfazer e reorganizar o histórico.
