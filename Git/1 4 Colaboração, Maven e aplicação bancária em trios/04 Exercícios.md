@@ -1,4 +1,4 @@
-# Exercícios — Tópico 4: Colaboração, Maven e aplicação bancária em trios
+# Exercícios — Tópico 4: Colaboração e aplicação bancária em trios
 
 ## Projeto prático em trio: Sistema Bancário
 
@@ -6,14 +6,14 @@ Esta é a folha de tarefas da atividade em trios. Cada trio construirá, em um r
 
 Ao longo desta sequência, vocês irão:
 
-- criar o repositório, convidar os colaboradores e preparar o projeto Maven;
+- criar o repositório, convidar os colaboradores e preparar a estrutura inicial do projeto;
 - combinar o contrato entre `Cliente`, `Conta` e `AplicacaoBanco` e integrar um esqueleto das classes;
 - desenvolver em paralelo, uma branch por integrante;
 - acompanhar as branches dos colegas com `git fetch`, sem misturar com o próprio trabalho;
 - abrir Pull Requests, revisar e integrar, inclusive com merge local;
 - executar o cenário de teste, corrigir pelo mesmo fluxo e documentar a execução.
 
-Os dados ficam em memória. Não haverá banco de dados, autenticação, interface gráfica, dependências, testes automatizados nem JAR: isso fica para uma etapa posterior do curso.
+Os dados ficam em memória. Não haverá banco de dados, autenticação, interface gráfica, Maven, dependências, testes automatizados nem JAR: isso fica para uma etapa posterior do curso.
 
 > Trabalhe no **computador físico**, não na VDI. Se algum comando não apresentar o resultado esperado, pare e procure o instrutor com a mensagem **completa** exibida no terminal.
 
@@ -46,22 +46,19 @@ Cada exercício informa **Quem faz**. Os Exercícios 55, 56 e 57 acontecem ao me
 
 ## Ponto de partida
 
-Você precisa do que construiu nos tópicos anteriores: Git configurado, conta no GitHub com autenticação por HTTPS funcionando e Java 21. Ao final, o repositório terá esta estrutura (`target/` é gerada pelo Maven e fica ignorada):
+Você precisa do que construiu nos tópicos anteriores: Git configurado, conta no GitHub com autenticação por HTTPS funcionando e Java 21. Ao final, o repositório terá esta estrutura (`out/` é gerada pelo `javac` e fica ignorada):
 
 ```text
 sistema-bancario/
 ├── .gitignore
 ├── README.md
-├── pom.xml
 └── src/
-    └── main/
-        └── java/
-            └── br/
-                └── com/
-                    └── banco/
-                        ├── AplicacaoBanco.java
-                        ├── Cliente.java
-                        └── Conta.java
+    └── br/
+        └── com/
+            └── banco/
+                ├── AplicacaoBanco.java
+                ├── Cliente.java
+                └── Conta.java
 ```
 
 ---
@@ -77,12 +74,9 @@ git config user.name
 git config user.email
 java -version
 javac -version
-mvn -version
 ```
 
-Resultado esperado: o Git mostra o seu nome e e-mail; `java` e `javac` indicam a versão `21`; `mvn -version` começa com `Apache Maven`, seguido da versão, e inclui uma linha `Java version:` com o Java 21. Se `mvn` não for reconhecido, procure o instrutor com a mensagem do terminal e não instale nada por conta própria.
-
-O Maven padroniza a estrutura do projeto e executa tarefas como a compilação. Neste tópico você usa apenas `mvn compile`.
+Resultado esperado: o Git mostra o seu nome e e-mail; `java` e `javac` indicam a versão `21`. Se algum comando não for reconhecido, procure o instrutor com a mensagem do terminal e não instale nada por conta própria.
 
 ---
 
@@ -98,7 +92,7 @@ Conferência: nos três navegadores, `https://github.com/<usuario-do-integrante-
 
 ---
 
-## Exercício 51 — Preparar o `pom.xml` e o `.gitignore`
+## Exercício 51 — Preparar o `.gitignore` inicial
 
 **Quem faz:** Integrante 1. Os demais acompanham.
 
@@ -106,46 +100,38 @@ Conferência: nos três navegadores, `https://github.com/<usuario-do-integrante-
 cd <pasta-dos-seus-repositórios>
 git clone https://github.com/<usuario-do-integrante-1>/sistema-bancario.git
 cd sistema-bancario
-echo "target/" > .gitignore
+echo "out/" > .gitignore
 ```
 
-Crie na raiz o arquivo `pom.xml` com o conteúdo da seção **Código final de referência** (é o único arquivo dessa seção que você usa desde já). Leia-o com o trio:
-
-| Elemento | Função |
-|---|---|
-| `groupId` | grupo ou organização responsável |
-| `artifactId` | identifica o projeto |
-| `version` | versão do artefato; `-SNAPSHOT` marca uma versão **em desenvolvimento** |
-| `maven.compiler.release` | versão da linguagem na compilação (17); roda no JDK 21 |
-| `project.build.sourceEncoding` | codificação dos arquivos-fonte (UTF-8), por causa dos acentos |
+O `.gitignore` impede que a pasta `out/`, onde o `javac` grava os arquivos `.class` compilados, seja enviada por engano para o repositório compartilhado.
 
 Registre e publique, o único commit direto na `main`:
 
 ```bash
 git status
-git add pom.xml .gitignore
-git commit -m "Adiciona pom.xml e .gitignore"
+git add .gitignore
+git commit -m "Adiciona .gitignore"
 git push origin main
 ```
 
-O `git status` deve listar `.gitignore` e `pom.xml` como não rastreados. O Git não registra pastas vazias: `src/main/java/...` só entra no repositório com o esqueleto, no Exercício 54.
+O `git status` deve listar `.gitignore` como não rastreado antes do `git add`. O Git não registra pastas vazias: `src/br/com/banco` só entra no repositório com o esqueleto, no Exercício 54.
 
 ---
 
-## Exercício 52 — Clonar e compilar o projeto vazio
+## Exercício 52 — Clonar o repositório e conferir o estado inicial
 
-**Quem faz:** Integrantes 2 e 3 clonam. Os três compilam.
+**Quem faz:** Integrantes 2 e 3 clonam. Os três conferem.
 
-**Integrantes 2 e 3:** repitam o `git clone` e o `cd` do exercício anterior. `ls -a` deve listar `.git`, `.gitignore`, `README.md` e `pom.xml`.
+**Integrantes 2 e 3:** repitam o `git clone` e o `cd` do exercício anterior. `ls -a` deve listar `.git`, `.gitignore` e `README.md`.
 
-**Os três**, na pasta do `pom.xml`:
+**Os três**, na pasta `sistema-bancario`:
 
 ```bash
-mvn compile
-git status
+git status -sb
+git log --oneline
 ```
 
-Na primeira execução o Maven baixa plugins, o que pode demorar. O final deve conter `BUILD SUCCESS`; ainda não há código-fonte, então não há classes a gerar. O `git status` deve indicar `nothing to commit, working tree clean`. Se aparecer `BUILD FAILURE`, copie a mensagem inteira e chame o instrutor.
+O `git status -sb` deve mostrar `## main...origin/main`, sem arquivos pendentes, e o `git log --oneline` deve exibir os dois commits iniciais (`Initial commit` e `Adiciona .gitignore`).
 
 ---
 
@@ -163,7 +149,7 @@ Se o Integrante 2 criar `realizarSaque` e o Integrante 3 chamar `sacar`, cada cl
 
 Combinações adicionais:
 
-- tudo no pacote `br.com.banco`, em `src/main/java/br/com/banco`;
+- tudo no pacote `br.com.banco`, em `src/br/com/banco`;
 - dinheiro em `BigDecimal`, nunca `double`;
 - `depositar`, `sacar` e `transferir` devolvem `true` quando fazem a operação e `false` quando a recusam, **sem alterar nenhum saldo**;
 - `descrever()` devolve, por exemplo, `Cliente 1 - Ana Souza - CPF 111.222.333-44` e `Conta 1 - titular: Ana Souza - saldo: R$ 250,00`.
@@ -188,7 +174,7 @@ O esqueleto tem as três classes com as assinaturas do contrato e corpos provis�
 
 ```bash
 git switch -c feature/esqueleto
-mkdir -p src/main/java/br/com/banco
+mkdir -p src/br/com/banco
 ```
 
 Crie nessa pasta `Cliente.java`, `Conta.java` e `AplicacaoBanco.java`, todos com `package br.com.banco;`. Em `Cliente` e `Conta`, escreva cada membro do contrato com construtor vazio e corpo provisório: `return 0;`, `return null;`, `return false;` ou `return BigDecimal.ZERO;`, conforme o tipo (`Conta` importa `java.math.BigDecimal`). `AplicacaoBanco` fica assim:
@@ -226,15 +212,15 @@ public class AplicacaoBanco {
 Compile, execute e confira:
 
 ```bash
-mvn compile
-java -cp target/classes br.com.banco.AplicacaoBanco
-ls target/classes/br/com/banco
+javac -d out src/br/com/banco/*.java
+java -cp out br.com.banco.AplicacaoBanco
+ls out/br/com/banco
 ```
 
-A execução imprime `Esqueleto: menu ainda não implementado.` e a listagem contém `AplicacaoBanco.class`, `Cliente.class` e `Conta.class`. O `-cp target/classes` diz ao Java onde estão as classes compiladas pelo Maven. Se os acentos aparecerem trocados, a causa é a codificação do console e não o código: avise o instrutor e siga em frente.
+A execução imprime `Esqueleto: menu ainda não implementado.` e a listagem contém `AplicacaoBanco.class`, `Cliente.class` e `Conta.class`. O `-d out` diz ao `javac` onde gravar as classes compiladas, e o `-cp out` diz ao `java` onde encontrá-las. Se os acentos aparecerem trocados, a causa é a codificação do console e não o código: avise o instrutor e siga em frente.
 
 ```bash
-git add src/main/java
+git add src
 git commit -m "Cria esqueleto das classes Cliente, Conta e AplicacaoBanco"
 git push -u origin feature/esqueleto
 ```
@@ -272,7 +258,7 @@ Substitua os corpos provisórios de `Cliente.java`:
 - `getId()`, `getNome()` e `getCpf()` devolvem o atributo correspondente;
 - `descrever()` devolve o texto combinado.
 
-Não altere nomes nem tipos do contrato. Faça ao menos dois commits, como `Adiciona atributos e construtor de Cliente` e `Implementa getters e descrever de Cliente`. Execute `mvn compile` (deve terminar em `BUILD SUCCESS`) e publique:
+Não altere nomes nem tipos do contrato. Faça ao menos dois commits, como `Adiciona atributos e construtor de Cliente` e `Implementa getters e descrever de Cliente`. Compile com `javac -d out src/br/com/banco/*.java` (não deve exibir nenhum erro) e publique:
 
 ```bash
 git push -u origin feature/cliente
@@ -312,7 +298,7 @@ Requisitos para `Conta.java`:
 
 **Ponte com COBOL.** Campos como `PIC S9(7)V99` fazem aritmética decimal exata. Em Java, `double` não garante essa exatidão em valores monetários, e `BigDecimal` existe para preservar os centavos.
 
-Faça commits pequenos, execute `mvn compile` e publique com `git push -u origin feature/conta`. Ainda não há menu para testar `Conta`; isso acontece no Exercício 61.
+Faça commits pequenos, compile com `javac -d out src/br/com/banco/*.java` e publique com `git push -u origin feature/conta`. Ainda não há menu para testar `Conta`; isso acontece no Exercício 61.
 
 ---
 
@@ -369,7 +355,7 @@ Escolha uma opção:
 
 Por enquanto, `Cliente` e `Conta` só têm o esqueleto: o menu compila e aparece, mas não opera de verdade. O teste funcional acontece no Exercício 60, com as classes dos colegas na `main`.
 
-Faça commits pequenos (`Cria menu principal da aplicacao`, `Implementa operacoes de deposito e saque`), execute `mvn compile` e publique com `git push -u origin feature/aplicacao-banco`.
+Faça commits pequenos (`Cria menu principal da aplicacao`, `Implementa operacoes de deposito e saque`), compile com `javac -d out src/br/com/banco/*.java` e publique com `git push -u origin feature/aplicacao-banco`.
 
 ---
 
@@ -392,7 +378,7 @@ Escolha a branch de um colega e examine-a **sem sair da sua**:
 ```bash
 git log --oneline main..origin/feature/conta
 git diff --stat main...origin/feature/conta
-git show origin/feature/conta:src/main/java/br/com/banco/Conta.java
+git show origin/feature/conta:src/br/com/banco/Conta.java
 ```
 
 O primeiro comando lista os commits do colega que ainda não estão na `main`. O segundo resume o que ele mudou desde que a branch nasceu, com os três pontos do Tópico 3. O terceiro mostra o arquivo como está na branch dele. Troque `feature/conta` pela branch que quiser examinar.
@@ -427,7 +413,7 @@ No GitHub, use **Compare & pull request**, com base na `main`, e este modelo:
 - Implementada a consulta de saldo.
 
 ## Como testar
-- `mvn compile` termina em BUILD SUCCESS.
+- `javac -d out src/br/com/banco/*.java` compila sem erros.
 - Depósito de valor negativo e saque acima do saldo são recusados.
 ```
 
@@ -454,7 +440,7 @@ Defina o revisor em **Reviewers**, em rodízio:
 ```bash
 git fetch origin
 git switch feature/<branch-do-colega>
-mvn compile
+javac -d out src/br/com/banco/*.java
 ```
 
 Em **Files changed**, avalie: nomes claros? Uma responsabilidade por método? Parâmetros e retornos conforme o contrato? Validação de valores inválidos? Erro evidente de lógica? Clique no `+` ao lado de uma linha para comentá-la e finalize com **Review changes**:
@@ -478,8 +464,8 @@ git switch main
 git pull
 git switch feature/aplicacao-banco
 git merge main -m "Atualiza a branch com a main"
-mvn compile
-java -cp target/classes br.com.banco.AplicacaoBanco
+javac -d out src/br/com/banco/*.java
+java -cp out br.com.banco.AplicacaoBanco
 ```
 
 Cadastre um cliente, crie uma conta, deposite `100,00` e consulte as contas. Se achar defeito, corrija na mesma branch. Depois, publique com `git push`. É um `push` comum: o merge acrescentou um commit e não reescreveu nada. **Não** use `rebase` aqui, porque a branch já está em revisão e o revisor tem uma cópia dela.
@@ -490,7 +476,7 @@ Cadastre um cliente, crie uma conta, deposite `100,00` e consulte as contas. Se 
 git switch main
 git pull
 git merge --no-ff feature/aplicacao-banco -m "Integra feature/aplicacao-banco"
-mvn compile
+javac -d out src/br/com/banco/*.java
 git push
 git push origin --delete feature/aplicacao-banco
 ```
@@ -517,15 +503,15 @@ git branch -d feature/<branch-integrada>
 git switch main
 git pull
 git log --oneline
-mvn compile
-java -cp target/classes br.com.banco.AplicacaoBanco
+javac -d out src/br/com/banco/*.java
+java -cp out br.com.banco.AplicacaoBanco
 ```
 
-O `git log --oneline` mostra os commits de cada integrante e os das integrações. `mvn compile` termina em `BUILD SUCCESS` e o menu permanece até a opção `0`.
+O `git log --oneline` mostra os commits de cada integrante e os das integrações. O `javac` compila sem erros e o menu permanece até a opção `0`.
 
 Uma classe correta sozinha pode falhar quando integrada. Confira se as assinaturas chamadas são as do contrato, se tudo está em `br.com.banco` e se não há classe duplicada.
 
-**Experimento local, sem commit.** Em `Conta.java`, troque `sacar` por `realizarSaque` e execute `mvn compile`: o resultado é `BUILD FAILURE` com `cannot find symbol` para `sacar`. Desfaça com `git restore src/main/java/br/com/banco/Conta.java`, que descarta a alteração ainda não commitada; o `git status` volta a indicar `working tree clean`.
+**Experimento local, sem commit.** Em `Conta.java`, troque `sacar` por `realizarSaque` e execute `javac -d out src/br/com/banco/*.java`: a compilação falha com `cannot find symbol` para `sacar`. Desfaça com `git restore src/br/com/banco/Conta.java`, que descarta a alteração ainda não commitada; o `git status` volta a indicar `working tree clean`.
 
 ---
 
@@ -542,7 +528,7 @@ Uma classe correta sozinha pode falhar quando integrada. Confira se as assinatur
 
 Sacar primeiro garante que, em qualquer falha, nenhum saldo mudou. Depositar primeiro deixaria o destino com dinheiro que não saiu da origem se o saque falhasse. Escreva uma mensagem para cada motivo de recusa.
 
-Faça `commit`, `mvn compile`, publique e abra a PR. Antes de publicar, se a `main` tiver avançado, você pode reaplicar a branch sobre ela com `git rebase main`, como no Tópico 3: a branch ainda é só sua. Depois de abrir a PR, não reescreva mais. **Integrante 2** revisa com o checklist do Exercício 60. **Integrante 3** anota em papel os saldos esperados em cada passo do Exercício 63. Depois da integração, os três executam `git switch main` e `git pull`.
+Faça `commit`, compile com `javac -d out src/br/com/banco/*.java`, publique e abra a PR. Antes de publicar, se a `main` tiver avançado, você pode reaplicar a branch sobre ela com `git rebase main`, como no Tópico 3: a branch ainda é só sua. Depois de abrir a PR, não reescreva mais. **Integrante 2** revisa com o checklist do Exercício 60. **Integrante 3** anota em papel os saldos esperados em cada passo do Exercício 63. Depois da integração, os três executam `git switch main` e `git pull`.
 
 ---
 
@@ -551,8 +537,8 @@ Faça `commit`, `mvn compile`, publique e abra a PR. Antes de publicar, se a `ma
 **Quem faz:** os três, cada um no seu computador, comparando resultados.
 
 ```bash
-mvn compile
-java -cp target/classes br.com.banco.AplicacaoBanco
+javac -d out src/br/com/banco/*.java
+java -cp out br.com.banco.AplicacaoBanco
 ```
 
 | Passo | Opção e dados digitados | Resultado esperado |
@@ -596,10 +582,10 @@ Se algo divergir, anote o passo, o esperado e o obtido para o próximo exercíci
 
 ```markdown
 ## Como compilar
-mvn compile
+javac -d out src/br/com/banco/*.java
 
 ## Como executar
-java -cp target/classes br.com.banco.AplicacaoBanco
+java -cp out br.com.banco.AplicacaoBanco
 
 ## Integrantes
 - Integrante 1: Cliente e transferência
@@ -613,12 +599,11 @@ Troque os papéis pelos nomes reais. O Integrante 3 revisa e o Integrante 2 inte
 
 ## Exercício 65 — Conferência final
 
-**Ambiente e Maven**
+**Ambiente e compilação**
 
-- [ ] `java -version` e `mvn -version` funcionam nos três computadores.
-- [ ] O `pom.xml` está na raiz, com as coordenadas `br.com.banco`, `sistema-bancario` e `1.0-SNAPSHOT`.
-- [ ] `mvn compile` termina em `BUILD SUCCESS` na `main` atualizada.
-- [ ] `target/` está no `.gitignore` e não foi versionada.
+- [ ] `java -version` e `javac -version` funcionam nos três computadores.
+- [ ] `javac -d out src/br/com/banco/*.java` compila sem erros na `main` atualizada.
+- [ ] `out/` está no `.gitignore` e não foi versionada.
 
 **Repositório e colaboração**
 
@@ -664,30 +649,7 @@ Como o repositório é privado, adicione o usuário GitHub do instrutor como col
 
 ## Código final de referência
 
-Use esta seção somente depois de concluir a sequência (exceto o `pom.xml`, usado no Exercício 51). O seu código pode usar mensagens diferentes, desde que respeite o contrato.
-
-### `pom.xml`
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>br.com.banco</groupId>
-    <artifactId>sistema-bancario</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <properties>
-        <maven.compiler.release>17</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-</project>
-```
+Use esta seção somente depois de concluir a sequência. O seu código pode usar mensagens diferentes, desde que respeite o contrato.
 
 ### `Cliente.java`
 
@@ -995,11 +957,10 @@ public class AplicacaoBanco {
 
 No Tópico 1, você guardou o histórico de um projeto local. No Tópico 2, publicou-o no GitHub e aprendeu branches e conflitos. No Tópico 3, aprendeu a comparar, desfazer e reorganizar o histórico. Agora, três pessoas trabalharam no mesmo repositório sem pisar umas nas outras.
 
-- O Maven padroniza a estrutura e a compilação, e o `pom.xml` descreve o projeto por suas coordenadas.
 - Um contrato combinado antes do código, fixado por um esqueleto que compila, evita que classes corretas sozinhas falhem juntas.
 - `fetch` mostra o trabalho dos colegas sem misturá-lo ao seu; `pull` traz a `main` atualizada; `push` publica, mas publicar não é integrar.
 - A PR é um espaço de comunicação e revisão, e não só um botão para juntar código. A integração pode ser feita pelo botão ou por um merge local seguido de `push`.
 - Em equipe, a regra de ouro deixa de ser teoria: a `main` e as branches dos colegas nunca são reescritas.
 - Integrar é verificar: compilar, executar e conferir o cenário depois que as peças se encontram.
 
-Dependências, ciclo de vida, testes automatizados e JAR ficam para uma etapa posterior do curso, sobre o mesmo projeto.
+Maven, dependências, ciclo de vida, testes automatizados e JAR ficam para uma etapa posterior do curso, sobre o mesmo projeto.
